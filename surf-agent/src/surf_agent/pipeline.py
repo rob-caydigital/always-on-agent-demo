@@ -1,9 +1,10 @@
-"""One run: fetch -> snapshot -> score -> assess (Claude) -> decide -> notify -> record."""
+"""One run: fetch -> snapshot -> score -> assess (Claude) -> decide -> notify -> record -> report."""
 
 from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -20,11 +21,14 @@ from .notify.base import NotifyResult, WakeState
 from .notify.console import DryRunNotifier
 from .notify.voicemonkey import VoiceMonkeyNotifier
 from .records import append_jsonl, save_run
+from .report import write_report
 from .scoring import score_snapshot
 from .snapshot import build_snapshot
 from .sources.http import LiveFetcher, ReplayFetcher
 
 DATA_DIR = ROOT / "data"
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -48,6 +52,7 @@ class RunResult:
     decision: Decision
     notify: NotifyResult | None
     record: dict
+    report: Path | None = None
 
 
 def _replay_paths(path: Path) -> tuple[Path, dict]:
@@ -215,4 +220,15 @@ def run_once(
         },
     )
     append_jsonl(data_dir / "decisions.jsonl", record)
-    return RunResult(run_id, run_dir, snapshot, score, outcome, decision, notify_result, record)
+
+    # 8. Visual report. Cosmetic only: by now the decision is made and recorded, so a rendering
+    # bug costs the picture, never the run.
+    try:
+        report = write_report(
+            run_dir, record, snapshot, score, spot, settings.preferences, scoring_cfg,
+            outcome.assessment if outcome else None,
+        )
+    except Exception:
+        log.exception("report rendering failed for run %s", run_id)
+        report = None
+    return RunResult(run_id, run_dir, snapshot, score, outcome, decision, notify_result, record, report)

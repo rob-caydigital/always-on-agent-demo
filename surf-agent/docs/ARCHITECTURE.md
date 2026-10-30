@@ -240,6 +240,7 @@ data/                         # gitignored
     score.json
     assessment.json
     record.json               # the decision record (SPEC §7.2)
+    report.html               # visual report: conditions, the score math, the verdict (with jokes)
   decisions.jsonl             # one line per run; quick history
   feedback.jsonl              # surf-check feedback entries
   state/wakeups.json
@@ -273,7 +274,12 @@ Two sources: **synthetic** (written by hand to hit each edge case in SPEC §8.2)
 
 **Graders**
 - **Code-based (primary):** decision match, veto recall, false-wake count, adjustment bound, spoken-message length. **Grounding check:** every number in `explanation` and `spoken_message` must match a value in the snapshot or score within rounding.
-- **LLM judge (secondary, for explanation quality):** a short rubric covering "accurate, mentions the deciding factor, no invented facts," graded 1–5 by a cheaper model (Sonnet 5.5). It's reported but isn't a gate until it's calibrated against your own judgments on about 10 samples.
+- **LLM judge (secondary, for explanation quality; `eval --judge`):** six pass/fail criteria in `evals/judge_prompt.md`: deciding factor first, faithful to the data, consistent with the decision, sound adjustment reasoning, a spoken message that works half-asleep, and honesty about the data. Pass/fail claims replace a vague 1–5 scale.
+  - **Judge model: Opus 5.5** at medium effort. It is deliberately *not* the model under test (Sonnet 5.5), to avoid self-preference bias.
+  - **Input:** the judge sees exactly what the assessment model saw: the spot profile, the snapshot and the score. It also gets the final decision. The output being graded is wrapped in tags as untrusted data.
+  - **Output:** structured JSON. Each reason ends with an explicit verdict, and code flags any reason/verdict mismatch. There is no refusal fallback, and a substituted served model counts as an error.
+  - **Audit** (`pytest -m live tests/test_judge.py`): the judge must fail an empty answer, "I don't know", a confidently wrong answer and a prompt-injection attempt, and must pass a hand-written correct answer.
+  - **Status: report only.** Rob agreed with all 5 pilot grades on 2026-10-30. It becomes a gate after more agreement checks.
 
 **Execution modes**
 - `eval` (sync): runs sequentially with caching on, for quick iteration (~1–2 min).

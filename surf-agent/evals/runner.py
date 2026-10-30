@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -22,12 +23,14 @@ from surf_agent.snapshot import build_snapshot
 from surf_agent.sources.http import ReplayFetcher
 from surf_agent.testing import make_snapshot
 
+from . import judge as judge_mod
 from .graders import GATES, grade, summarize
 
 EVALS = Path(__file__).parent
 SCENARIOS = EVALS / "scenarios"
 RESULTS = EVALS / "results"
 EST_OUTPUT_TOKENS = 900  # thinking + JSON at low effort; refined by real runs
+EST_JUDGE_OUTPUT_TOKENS = 1000  # measured ~1,008 per call (Opus 5.5, medium effort) on 2026-10-30
 
 
 @dataclass
@@ -57,8 +60,9 @@ def load_scenarios(
             )
         )
         out.append(Scenario(d["id"], "real", d.get("tags", []), d["expect"], snap))
-    if only:
-        out = [s for s in out if only in s.id]
+    if only:  # comma-separated substrings
+        parts = [p.strip() for p in only.split(",") if p.strip()]
+        out = [s for s in out if any(p in s.id for p in parts)]
     return out
 
 
@@ -113,6 +117,42 @@ def _run_batch(client, params_list, ids, model) -> dict[str, llm.LLMOutcome]:
     return out
 
 
+def _concurrent(fn, items: list, workers: int = 4) -> list:
+    """Run the first item alone (it writes the prompt cache), then the rest in parallel."""
+    if not items:
+        return []
+    first = [fn(items[0])]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return first + list(pool.map(fn, items[1:]))
+
+
+def _judge_estimate(client, params_list: list[dict], model: str) -> float:
+    p = params_list[0]
+    total_in = client.messages.count_tokens(model=model, system=p["system"], messages=p["messages"]).input_tokens
+    prefix = client.messages.count_tokens(
+        model=model, system=p["system"], messages=[{"role": "user", "content": "x"}]
+    ).input_tokens
+    n = len(params_list)
+    return llm.cost_usd(model, {
+        "input_tokens": (total_in - prefix) * n,
+        "cache_creation_input_tokens": prefix,
+        "cache_read_input_tokens": prefix * (n - 1),
+        "output_tokens": EST_JUDGE_OUTPUT_TOKENS * n,
+    })
+
+
+def _run_judge(client, jobs: list[tuple[str, dict]]) -> dict[str, judge_mod.JudgeOutcome]:
+    def one(job):
+        sid, params = job
+        o = judge_mod.judge(client, params)
+        failed = [c for c, ok in o.verdicts.items() if not ok]
+        status = o.error or ("all pass" if not failed else "fail: " + ", ".join(failed))
+        typer.echo(f"  judge {sid:<40} {status}  ({o.latency_s:.1f}s)")
+        return sid, o
+
+    return dict(_concurrent(one, jobs))
+
+
 def _previous(model_tag: str) -> dict | None:
     prior = sorted(RESULTS.glob(f"*-{model_tag}.json"))
     return json.loads(prior[-1].read_text(encoding="utf-8")) if prior else None
@@ -139,7 +179,16 @@ def _report_md(res: dict, prev: dict | None) -> str:
                 d = m[key] - prev["metrics"][key]
                 delta = f" ({d:+.0%} vs prev)" if d else ""
             lines.append(f"| {key} | {m[key]:.0%}{delta} | {op} {bar:.0%} | {'✅' if m['gates'][key] else '❌'} |")
-    lines += ["", f"**All gates pass: {'yes' if m['all_gates_pass'] else 'NO'}**", "", "## Scenarios", "",
+    lines += ["", f"**All gates pass: {'yes' if m['all_gates_pass'] else 'NO'}**"]
+    j = res.get("judge")
+    if j:
+        lines += ["", f"## LLM judge (report only): {j['model']} ({j['effort']}), prompt {j['prompt_version']}", "",
+                  (f"- Judged {j['judged']} outputs, {j['errors']} judge errors, "
+                  f"{j.get('inconsistent_verdicts', 0)} reason/verdict mismatches, cost ${j['cost_usd']:.4f}, "
+                  f"overall criteria pass rate **{j['pass_rate']:.0%}**"), "",
+                  "| Criterion | Pass rate |", "|---|---|"]
+        lines += [f"| {c} | {rate:.0%} |" for c, rate in j["criteria"].items()]
+    lines += ["", "## Scenarios", "",
               "| id | expected | got | base | final | adj | notes |", "|---|---|---|---|---|---|---|"]
     for r in res["rows"]:
         notes = []
@@ -153,10 +202,62 @@ def _report_md(res: dict, prev: dict | None) -> str:
             notes.append(f"ungrounded {r['ungrounded']}")
         if r.get("llm_error"):
             notes.append(f"llm error: {r['llm_error']}")
+        if r.get("judge_failed"):
+            notes.append("judge: " + ", ".join(r["judge_failed"]))
+        if r.get("judge_inconsistent"):
+            notes.append("judge reason/verdict mismatch: " + ", ".join(r["judge_inconsistent"]))
         adj = f"{r['raw_adjustment']:+.2f}" if "raw_adjustment" in r else ""
         lines.append(f"| {r['id']} | {r['expected']} | {r['decision']} | {r['base_score']:.2f} | "
                      f"{r['final_score']:.2f} | {adj} | {'; '.join(notes)} |")
     return "\n".join(lines) + "\n"
+
+
+def _judge_rows(client, rows, scenarios, scores, decisions, spot, prefs, judge_model, judge_effort, assume_yes):
+    """Grade each row's assessment with the LLM judge. Mutates rows; returns a summary (False = user declined)."""
+    by_id = {s.id: s for s in scenarios}
+    jobs = [
+        (r["id"], judge_mod.build_judge_params(
+            by_id[r["id"]].snapshot, scores[r["id"]], decisions[r["id"]], r["assessment"], spot, prefs,
+            model=judge_model, effort=judge_effort))
+        for r in rows if "assessment" in r
+    ]
+    if not jobs:
+        return None
+    est = _judge_estimate(client, [p for _, p in jobs], judge_model)
+    typer.echo(f"\njudge {judge_model} ({judge_effort}): {len(jobs)} calls, estimated ${est:.2f}")
+    if not assume_yes and not typer.confirm("Proceed with judging?", default=True):
+        return False
+    verdicts = _run_judge(client, jobs)
+    for r in rows:
+        jo = verdicts.get(r["id"])
+        if not jo:
+            continue
+        if jo.error:
+            r["judge_error"] = jo.error
+            continue
+        r["judge"] = jo.verdicts
+        r["judge_reasons"] = jo.reasons
+        r["judge_score"] = jo.score
+        r["judge_failed"] = [c for c, ok in jo.verdicts.items() if not ok]
+        if jo.inconsistent:
+            r["judge_inconsistent"] = jo.inconsistent
+    judged = [r for r in rows if "judge" in r]
+    usages = [jo.usage for jo in verdicts.values() if jo.usage]
+    return {
+        "model": judge_model,
+        "effort": judge_effort,
+        "prompt_version": judge_mod.judge_prompt_version(),
+        "judged": len(judged),
+        "errors": sum(1 for jo in verdicts.values() if jo.error),
+        "inconsistent_verdicts": sum(len(jo.inconsistent) for jo in verdicts.values()),
+        "pass_rate": (sum(r["judge_score"] for r in judged) / len(judged)) if judged else 0.0,
+        "criteria": {c: (sum(r["judge"][c] for r in judged) / len(judged)) if judged else 0.0
+                     for c in judge_mod.CRITERIA},
+        "cost_usd": sum(jo.cost_usd for jo in verdicts.values()),
+        "mean_latency_s": sum(jo.latency_s for jo in verdicts.values()) / len(verdicts),
+        "usage_total": {k: sum(u.get(k, 0) for u in usages) for k in
+                        ("input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")},
+    }
 
 
 def run_suite(
@@ -170,7 +271,15 @@ def run_suite(
     batch: bool,
     only: str | None,
     assume_yes: bool,
+    use_judge: bool = False,
+    judge_model: str = judge_mod.DEFAULT_JUDGE_MODEL,
+    judge_effort: str = judge_mod.DEFAULT_JUDGE_EFFORT,
 ) -> int:
+    if use_judge and not use_llm:
+        typer.secho("--judge needs LLM outputs to grade; drop --no-llm.", fg="red")
+        return 2
+    if use_judge and judge_model in models:
+        typer.secho(f"Warning: {judge_model} is grading its own outputs (self-preference bias).", fg="yellow")
     scenarios = load_scenarios(spot, settings, only, scoring)
     if not scenarios:
         typer.secho("No scenarios matched.", fg="red")
@@ -203,6 +312,7 @@ def run_suite(
                         else _run_sync(client, params, ids, llm_cfg.timeout_s))
 
         rows = []
+        decisions = {}
         for s in scenarios:
             o = outcomes.get(s.id)
             a = o.assessment if o else None
@@ -210,6 +320,7 @@ def run_suite(
                 scores[s.id], a, settings.preferences, spot, llm_cfg.max_adjustment,
                 shark_status=s.snapshot.sharks.status if s.snapshot.sharks else None,
             )
+            decisions[s.id] = d
             row = {"id": s.id, "kind": s.kind, "tags": s.tags,
                    **grade(s.expect, d, a, s.snapshot, scores[s.id], extra_numbers=spot.model_dump(mode="json"))}
             if o and o.error:
@@ -218,8 +329,16 @@ def run_suite(
                 row["adjustment_reason"] = a.adjustment_reason
                 row["explanation"] = a.explanation
                 row["spoken_message"] = a.spoken_message
+                row["assessment"] = a.model_dump()
             row["guardrail_notes"] = d.guardrail_notes
             rows.append(row)
+
+        judge_summary = None
+        if use_judge:
+            judge_summary = _judge_rows(client, rows, scenarios, scores, decisions, spot, settings.preferences,
+                                        judge_model, judge_effort, assume_yes)
+            if judge_summary is False:
+                return 1
 
         metrics = summarize(rows, llm_used=use_llm)
         usages = [o.usage for o in outcomes.values() if o.usage]
@@ -241,6 +360,7 @@ def run_suite(
             "usage_total": {k: sum(u.get(k, 0) for u in usages) for k in
                             ("input_tokens", "output_tokens", "cache_creation_input_tokens",
                              "cache_read_input_tokens")},
+            "judge": judge_summary,
             "rows": rows,
         }
         if use_llm and len(usages) > 1 and read == 0:

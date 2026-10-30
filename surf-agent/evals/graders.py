@@ -46,6 +46,8 @@ def _time_numbers(snap: ConditionsSnapshot, out: set[float]) -> None:
     if snap.sunrise:
         times.append(snap.sunrise)
     times += [t.time for t in snap.tides]
+    times += [o.observed_at.astimezone(snap.window_start.tzinfo) for o in (snap.buoy_now, snap.wind_now) if o]
+    times += [t.astimezone(snap.window_start.tzinfo) for t in snap.source_times.values()]
     for t in times:
         out.update({float(t.hour), float(t.hour % 12 or 12), float(t.minute)})
 
