@@ -34,6 +34,10 @@ uv run surf-check --replay tests/fixtures/raw_2026-10-30             # real capt
 uv run surf-check --replay tests/fixtures/raw_demo_go_day --force-wake   # demo GO + simulated wake
 uv run surf-check --replay data/runs/<run-id>                        # any past run
 
+# Visual report (every run writes data/runs/<run-id>/report.html)
+uv run surf-check report --open        # rebuild and open the latest run's report
+uv run surf-check report <run-id>      # rebuild one run's report from its saved data
+
 # Feedback loop
 uv run surf-check feedback --date 2026-10-31 --went --rating 4 --note "clean, chest high"
 uv run surf-check promote <run-id> --expected NO_GO   # turn a real morning into an eval scenario

@@ -6,6 +6,7 @@ import json
 import logging
 import shutil
 import sys
+import webbrowser
 from datetime import date, datetime
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from dotenv import load_dotenv
 from .config import ROOT, ConfigError, load_scoring, load_settings, load_spot
 from .pipeline import DATA_DIR, RunOptions, make_notifier, run_once
 from .records import append_jsonl
+from .report import rebuild_report
 
 app = typer.Typer(add_completion=False, help="Should I go surfing this morning?")
 
@@ -66,6 +68,8 @@ def _print_result(res) -> None:
             + (f", error: {llm['error']}" if llm["error"] else "")
         )
     typer.echo(f"Record: {res.run_dir}")
+    if res.report:
+        typer.echo(f"Report: {res.report}")
 
 
 @app.callback(invoke_without_command=True)
@@ -129,6 +133,30 @@ def promote(
         encoding="utf-8",
     )
     typer.echo(f"Created {dest}")
+
+
+@app.command()
+def report(
+    run_id: str = typer.Argument(None, help="Run id under data/runs/ (default: the latest run)."),
+    open_: bool = typer.Option(False, "--open", help="Open the report in the browser."),
+):
+    """Rebuild a run's visual report from its saved data."""
+    runs = DATA_DIR / "runs"
+    if run_id:
+        run_dir = runs / run_id
+    else:
+        done = [p for p in runs.glob("*") if (p / "record.json").exists()] if runs.is_dir() else []
+        # record.json is written once per run; rebuilding a report must not change which run is latest.
+        run_dir = max(done, key=lambda p: (p / "record.json").stat().st_mtime, default=None)
+    if run_dir is None or not (run_dir / "record.json").exists():
+        typer.secho(f"No saved run at {run_dir or runs}", fg="red", err=True)
+        raise typer.Exit(1)
+    settings, _, scoring = _load(None)
+    spot_id = json.loads((run_dir / "record.json").read_text(encoding="utf-8"))["spot_id"]
+    path = rebuild_report(run_dir, load_spot(spot_id), settings.preferences, scoring)
+    typer.echo(f"Report: {path}")
+    if open_:
+        webbrowser.open(path.resolve().as_uri())
 
 
 @app.command("notify-test")

@@ -240,6 +240,7 @@ data/                         # gitignored
     score.json
     assessment.json
     record.json               # the decision record (SPEC §7.2)
+    report.html               # visual report: conditions, the score math, the verdict (with jokes)
   decisions.jsonl             # one line per run; quick history
   feedback.jsonl              # surf-check feedback entries
   state/wakeups.json
