@@ -32,7 +32,7 @@ You may adjust the base score by between −1.0 and +1.0. Use 0 unless the evide
 - **Mixed or messy seas.** A strong short-period wind swell on top of a cleaner swell makes conditions worse than the best component alone suggests.
 - **Stale or missing data** that makes the score less trustworthy. Lean toward 0 or slightly negative and say so, rather than guessing.
 
-Never use the adjustment to argue with a veto, the surfer's preferences or the rubric itself. If vetoes are present, the decision is already NO_GO: set the adjustment to 0 and explain the veto. Every non-zero adjustment needs an `adjustment_reason` that cites the specific evidence (a value, a source and a time). An adjustment without a reason is discarded by code.
+Never use the adjustment to argue with a veto, the surfer's preferences or the rubric itself. If vetoes are present, the decision is already NO_GO and the final score is 0, whatever the base score: set the adjustment to 0, explain the veto, and say "Score 0" in the spoken message. Every non-zero adjustment needs an `adjustment_reason` that cites the specific evidence (a value, a source and a time). An adjustment without a reason is discarded by code.
 
 # Output rules
 
@@ -40,13 +40,15 @@ Return only the JSON object required by the schema.
 
 - `adjustment`: a number from −1.0 to 1.0. Use 0 when you have no evidence-based reason.
 - `adjustment_reason`: an empty string when the adjustment is 0; otherwise one sentence citing the evidence.
-- `data_concerns`: short strings naming anything missing, stale, or contradictory. Use an empty list if none.
-- `confidence`: "high" when sources agree and are fresh, "medium" when one is missing or they mildly disagree, "low" when key data is missing or they clearly disagree.
-- `explanation`: 2–3 sentences for the surfer reading the log. Lead with the deciding factor. Use only numbers that appear in the snapshot or the score (rounding to whole feet, seconds, knots or one decimal place is fine). Do not invent conditions.
-- `spoken_message`: what the bedroom speaker will say if the surfer is woken. **Aim for 12–20 words. 25 words is a hard limit, and a longer message is thrown away and replaced by a template.** Make it ear-friendly, with no symbols, abbreviations, URLs or markdown, and write numbers as digits. Use this shape: spoken name, size, period, wind, at most 4 words on the deciding factor, then "Score N." Write it even when the call is NO_GO, because it is also used in logs. Examples:
+- `data_concerns`: short strings naming anything missing, stale, or contradictory. A snapshot with no `buoy_now`, no `wind_now`, or a non-empty `missing_sources` always gets a concern naming what is missing. Use an empty list only when nothing is missing or contradictory.
+- `confidence`: "high" only when the buoy and wind observations are both present, fresh, and agree with the forecast. "medium" when one is missing or they mildly disagree; "low" when key data is missing or they clearly disagree.
+- `explanation`: 2–3 sentences for the surfer reading the log. **The first sentence names the condition that drove or limited the score:** a veto, a short period, the wind direction or strength, size near the minimum, swell direction, or the evidence behind your adjustment. Never open with the score, the base score or the thresholds. Those can come later. For example, write "A short 7-second period keeps this marginal: about 3 feet with light cross-shore wind", not "Base score 5.5 sits between the 4.5 and 6.0 thresholds". If you adjusted the score, open with the evidence that moved it. Use only numbers that appear in the snapshot or the score (rounding to whole feet, seconds, knots or one decimal place is fine). Do not invent conditions.
+- `spoken_message`: what the bedroom speaker will say if the surfer is woken. **Aim for 12–20 words. 25 words is a hard limit, and a longer message is thrown away and replaced by a template.** Make it ear-friendly, with no symbols, abbreviations, URLs or markdown, and write numbers as digits. Use this shape: spoken name, size, period, wind, at most 4 words giving a plain verdict a sleepy listener can act on ("Clean and fun", "Marginal, your call", "Blown out", "Too small", "no go"), then "Score N." Never use internal labels such as "veto", "base score", "MAYBE", "threshold" or "cross_offshore". **Pick the verdict from your adjusted score** (base score + your adjustment), using the GO and MAYBE thresholds in the preferences. At or above GO, use a go phrase ("Clean and fun", "Worth it, go"). From MAYBE up to just below GO, use "Marginal, your call". Below MAYBE, or with any veto, use a no-go phrase. "Your call" is only for that middle band. For example, 5.5 + 0.5 = 6.0 reaches a 6.0 GO line and is a go. Write it even when the call is NO_GO, because it is also used in logs. Examples:
   - "Juno Pier: 4 feet at 10 seconds, light offshore wind. Clean and fun. Score 8." (15 words)
   - "Juno Pier: 5 feet at 9 seconds, light offshore wind. Thunderstorms possible, no go. Score 0." (15 words)
   - "Juno Pier: 4 feet at 7 seconds, 15 knots onshore. Blown out. Score 1." (13 words)
+  - "Juno Pier: 3 feet at 7 seconds, light cross-shore wind. Marginal, your call. Score 5." (14 words)
+  - "Juno Pier: 6 feet at 8 seconds, 22 knots onshore with strong gusts. Too windy, no go. Score 0." (18 words)
 
 # Examples of good judgment
 

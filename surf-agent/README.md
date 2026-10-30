@@ -34,6 +34,10 @@ uv run surf-check --replay tests/fixtures/raw_2026-10-30             # real capt
 uv run surf-check --replay tests/fixtures/raw_demo_go_day --force-wake   # demo GO + simulated wake
 uv run surf-check --replay data/runs/<run-id>                        # any past run
 
+# Visual report (every run writes data/runs/<run-id>/report.html)
+uv run surf-check report --open        # rebuild and open the latest run's report
+uv run surf-check report <run-id>      # rebuild one run's report from its saved data
+
 # Feedback loop
 uv run surf-check feedback --date 2026-10-31 --went --rating 4 --note "clean, chest high"
 uv run surf-check promote <run-id> --expected NO_GO   # turn a real morning into an eval scenario
@@ -49,6 +53,8 @@ uv run surf-check eval --no-llm        # deterministic baseline on all scenarios
 uv run surf-check eval                 # L3: real Claude calls (asks to confirm the estimated cost)
 uv run surf-check eval --model claude-opus-5-5 --model claude-sonnet-5-5   # side-by-side
 uv run surf-check eval --batch         # Message Batches API, 50% cost
+uv run surf-check eval --judge         # + Opus 5.5 judge grading explanation quality (report only, ~$1)
+uv run pytest -m live tests/test_judge.py   # judge audit: must fail bad outputs, pass a correct one (~$0.30)
 ```
 
 - **Scenarios** live in `evals/scenarios/`. `synthetic/` holds 34 hand-labeled cases (see `LABELING_NOTES.md`). `real/` holds captured NOAA data plus a label.
