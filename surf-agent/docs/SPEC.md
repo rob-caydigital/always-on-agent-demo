@@ -49,16 +49,18 @@ Everything about a spot lives in config. Starting values:
 spot:
   id: juno-beach-pier
   name: Juno Beach Pier
-  lat: 26.8920            # verify in step 2
-  lon: -80.0530
+  lat: 26.8933            # verified 2026-10-30 (OSM pier centroid)
+  lon: -80.0557
   timezone: America/New_York
-  beach_facing_deg: 80    # direction the beach faces (E, slightly N). Offshore wind = ~260° (WSW)
+  beach_facing_deg: 73    # ENE (shore bearing ~343°, ±5°). Offshore wind = ~253° (WSW)
   swell_window_deg: [20, 140]   # swell directions that actually reach the beach (NNE through SE)
-  noaa:
-    marine_zone: AMZ650   # Coastal waters Jupiter Inlet to Deerfield Beach, 0–20 NM. Verify in step 2
-    wave_buoy: "41114"    # Fort Pierce nearshore wave buoy (NDBC/CDIP). Verify in step 2
-    wind_station: LKWF1   # Lake Worth Pier C-MAN station. Verify in step 2
-    tide_station: TBD     # NOAA CO-OPS station nearest Juno. Find in step 2
+  noaa:                   # all verified live 2026-10-30; see ARCHITECTURE.md §11
+    nws_grid: MFL/111,100 # offshore cell (cleaner swell fields than pier cell 110,100)
+    marine_zone: AMZ650   # Coastal waters Jupiter Inlet to Deerfield Beach, 0–20 NM
+    alert_zones: [FLZ168, AMZ650]   # land + marine; one point alone misses half the alerts
+    wave_buoy: "41114"    # Fort Pierce (CDIP 134), ~76 km NNW. Nearest active wave buoy
+    wind_station: LKWF1   # Lake Worth Pier C-MAN, 31 km S; fallback KDJT (PBI airport)
+    tide_station: "8722495"   # Jupiter Inlet south jetty, 6 km; fallback 8722670
 
 session:
   start: dawn             # civil dawn (~30 min before sunrise)
@@ -143,8 +145,8 @@ Period changes both **how big the waves actually break** and **how good they are
 
 ### 6.3 Wind factor (0–1.1)
 
-Wind direction is classified relative to the beach. Offshore = `beach_facing_deg + 180` (≈ 260° at Juno).
-- Offshore: within ±30° of 260°
+Wind direction is classified relative to the beach. Offshore = `beach_facing_deg + 180` (≈ 253° at Juno).
+- Offshore: within ±30° of 253°
 - Cross-offshore: 30–67°
 - Cross-shore: 67–112°
 - Cross-onshore: 112–150°
@@ -290,6 +292,6 @@ surf-check feedback --date 2026-10-30 --went yes --rating 4 --note "clean, chest
 5. **Broken data:** fail closed. Let me sleep and log the error.
 6. **Wake-up style:** I design the Alexa routine myself. The agent fires the trigger and passes the spoken summary.
 
-### Still open (for step 2)
-- Verify the pier coordinates, the NWS marine zone, the wave buoy, the wind station and the nearest tide station.
-- Confirm whether Voice Monkey can pass announcement text with a routine trigger.
+### Resolved in step 2
+- The NOAA sources were verified live. See ARCHITECTURE.md §3 and §11.
+- Voice Monkey v3 can't pass text with a routine trigger, so the wake-up is a trigger call followed by a separate announce call. See ARCHITECTURE.md §7.
