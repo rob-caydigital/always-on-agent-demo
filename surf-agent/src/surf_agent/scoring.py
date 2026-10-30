@@ -10,9 +10,11 @@ from .models import (
     HourConditions,
     HourScore,
     ScoreResult,
+    SharkRating,
     SwellComponent,
     Veto,
 )
+from .sharks import common_name, rate_sharks, veto_rating
 
 MAX_SCORE = 10.0
 
@@ -193,8 +195,23 @@ def score_hour(
     )
 
 
+def shark_veto(snap: ConditionsSnapshot, cfg: ScoringConfig, ratings: list[SharkRating]) -> Veto | None:
+    """One veto per run, naming the highest-threat shark (SPEC-shark-threat §6)."""
+    top = veto_rating(ratings, cfg.sharks)
+    if top:
+        p = top.worst_ping
+        return Veto(
+            code="shark",
+            detail=f"{top.name} ({common_name(top.species)}), {p.distance_mi:.1f} mi, "
+            f"{p.age_h:.0f} h ago, threat {top.threat:.2f}",
+        )
+    if cfg.sharks and cfg.sharks.on_missing_data == "sleep" and snap.sharks and snap.sharks.status == "unavailable":
+        return Veto(code="shark", detail="shark tracker unavailable (on_missing_data: sleep)")
+    return None
+
+
 def window_vetoes(
-    snap: ConditionsSnapshot, cfg: ScoringConfig, active_alerts: list[Alert]
+    snap: ConditionsSnapshot, cfg: ScoringConfig, active_alerts: list[Alert], ratings: list[SharkRating]
 ) -> list[Veto]:
     out: list[Veto] = []
     v = cfg.vetoes
@@ -219,6 +236,9 @@ def window_vetoes(
     )
     if not has_waves:
         out.append(Veto(code="no_wave_data", detail="no usable wave forecast or observation"))
+    shark = shark_veto(snap, cfg, ratings)
+    if shark:
+        out.append(shark)
     return out
 
 
@@ -245,7 +265,8 @@ def score_snapshot(
     active = [a for a in snap.alerts if alert_active(a, snap.window_start, snap.window_end)]
     hourly = [score_hour(h, snap, spot, prefs, cfg, active) for h in snap.hours]
     block = best_block(hourly, block_hours)
-    vetoes = window_vetoes(snap, cfg, active)
+    ratings = rate_sharks(snap.sharks, cfg.sharks)  # never touches the hourly or base score
+    vetoes = window_vetoes(snap, cfg, active, ratings)
     if block:
         # An hour-level veto blocks the decision only if it applies to every hour of the best block.
         common = None
@@ -263,4 +284,5 @@ def score_snapshot(
         hourly=hourly,
         best_block=block,
         base_score=block.score if block else 0.0,
+        sharks=ratings,
     )

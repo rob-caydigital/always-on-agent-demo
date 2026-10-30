@@ -1,0 +1,21 @@
+id: shark-feed-unavailable-good-waves
+description: "Good waves; the OCEARCH feed returned HTTP 503."
+tags: [shark, missing-data]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks_status: unavailable
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: "With on_missing_data: ignore, a down shark feed doesn't cost a good morning; the explanation should say the shark tracker was unavailable."

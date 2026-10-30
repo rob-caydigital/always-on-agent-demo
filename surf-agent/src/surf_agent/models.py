@@ -62,6 +62,41 @@ class TideEvent(BaseModel):
     height_ft: float
 
 
+class SharkPing(BaseModel):
+    """One OCEARCH ping inside the radius and the lookback window."""
+
+    time: datetime  # UTC
+    lat: float
+    lon: float
+    distance_mi: float  # great-circle from the spot, statute miles
+    age_h: float  # hours before run_at
+
+
+class SharkSighting(BaseModel):
+    """A tagged shark with at least one ping inside the radius and the lookback window."""
+
+    id: int
+    name: str
+    species: str  # raw feed text, e.g. "White Shark (Carcharodon carcharias)"
+    stage_of_life: str | None = None
+    length: str | None = None  # display only
+    pings: list[SharkPing]
+    track_used: bool  # False = latest position only (track fetch failed or over the cap)
+
+
+class SharkReport(BaseModel):
+    """What the shark feed said for this run. Only sharks inside the radius are kept."""
+
+    status: Literal["checked", "unavailable", "not_captured", "disabled"]
+    detail: str | None = None
+    feed_animals: int = 0
+    feed_sharks: int = 0
+    sharks_in_lookback: int = 0  # anywhere in the world
+    tracks_fetched: int = 0
+    tracks_truncated: bool = False
+    nearby: list[SharkSighting] = Field(default_factory=list)
+
+
 class ConditionsSnapshot(BaseModel):
     """Everything the scorer and Claude see, trimmed to the session window."""
 
@@ -80,11 +115,27 @@ class ConditionsSnapshot(BaseModel):
     tides: list[TideEvent] = Field(default_factory=list)
     missing_sources: list[str] = Field(default_factory=list)
     source_times: dict[str, datetime] = Field(default_factory=dict)
+    sharks: SharkReport | None = None  # None = predates the shark check; treated as not_captured
 
 
 class Veto(BaseModel):
-    code: Literal["lightning", "severe_warning", "flat", "too_big", "gale", "no_wave_data"]
+    code: Literal["lightning", "severe_warning", "flat", "too_big", "gale", "no_wave_data", "shark"]
     detail: str
+
+
+class SharkRating(BaseModel):
+    """Deterministic threat rating for one nearby shark (SPEC-shark-threat §5)."""
+
+    id: int
+    name: str
+    species: str
+    species_key: str | None  # matched scientific name; None = unknown species
+    species_weight: float
+    stage_factor: float
+    recency_factor: float
+    distance_factor: float
+    threat: float  # product, rounded to 2 dp before comparing with the threshold
+    worst_ping: SharkPing
 
 
 class HourScore(BaseModel):
@@ -114,6 +165,7 @@ class ScoreResult(BaseModel):
     hourly: list[HourScore]
     best_block: BlockScore | None
     base_score: float
+    sharks: list[SharkRating] = Field(default_factory=list)  # highest threat first
 
 
 class Assessment(BaseModel):

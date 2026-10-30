@@ -1,0 +1,22 @@
+id: shark-blue-5mi-10h-good-waves
+description: "Good waves; an adult blue shark pinged 5 mi away 10 h ago (threat 0.25 x 1.0 x 0.85 x 0.8 = 0.17)."
+tags: [shark, below-threshold]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "Blue Shark (Prionace glauca)", stage: "Adult", distance_mi: 5, age_h: 10, name: Azure}
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: "A low-threat species at mid distance rates 0.17, under the threshold."
