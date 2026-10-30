@@ -1,0 +1,20 @@
+id: rain-no-thunder
+description: 3.5 ft @ 9 s E swell with SW 6 kt, but 70% rain showers and no thunder.
+tags: [rain, weather-penalty]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 9
+    swell_dir_deg: 80
+    wind_kt: 6
+    wind_dir_deg: 225
+    gust_kt: 10
+    pop_pct: 70
+    thunder_pct: 5
+    weather_text: rain showers likely
+  marine_text: "SW winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 3 ft at 9 seconds. Showers likely."
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: Rain is a penalty only (SPEC §12); good offshore surf in the rain still scores ~6.6 and is worth going.

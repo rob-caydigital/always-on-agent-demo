@@ -1,0 +1,19 @@
+id: wind-swell-6s-glassy-maybe
+description: Typical Juno 3 ft @ 6 s E wind swell on a glassy morning.
+tags: [wind-swell, short-period, glassy, maybe]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 6
+    swell_dir_deg: 85
+    wind_kt: 3
+    wind_dir_deg: 300
+    gust_kt: 5
+    pop_pct: 10
+    thunder_pct: 0
+  marine_text: "Light and variable winds. Seas 2 to 3 ft. Wave Detail: E 3 ft at 6 seconds."
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE]
+  vetoes: []
+  rationale: Rideable but weak short-period wind swell; glassy helps but it is a sleep-in MAYBE, not worth a wake-up.

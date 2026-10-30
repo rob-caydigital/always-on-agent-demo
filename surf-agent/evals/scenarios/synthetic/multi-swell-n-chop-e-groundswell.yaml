@@ -1,0 +1,22 @@
+id: multi-swell-n-chop-e-groundswell
+description: Short-period 5 ft @ 6 s N chop plus a cleaner 2.5 ft @ 11 s E groundswell, WNW 8 kt.
+tags: [multi-swell, swell-components, groundswell]
+input:
+  conditions:
+    wave_height_ft: 5
+    wave_period_s: 6
+    swell_dir_deg: 0
+    wind_kt: 8
+    wind_dir_deg: 290
+    gust_kt: 12
+    pop_pct: 10
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 0, height_ft: 5, period_s: 6, source: cwf}
+    - {direction_deg: 90, height_ft: 2.5, period_s: 11, source: cwf}
+  marine_text: "WNW winds 5 to 10 kt. Seas 4 to 6 ft. Wave Detail: N 5 ft at 6 seconds and E 2 ft at 11 seconds."
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: The E 11 s groundswell produces ~3.5 ft clean faces under cross-offshore wind; the N chop is noise, so the best component drives a GO.

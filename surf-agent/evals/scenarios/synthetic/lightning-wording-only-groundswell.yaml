@@ -1,0 +1,22 @@
+id: lightning-wording-only-groundswell
+description: Rare 3.5 ft @ 13 s groundswell, glassy SW wind, thunder probability only 10% but the gridded weather says isolated thunderstorms.
+tags: [veto, safety, lightning, perfect-waves, groundswell]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 13
+    swell_dir_deg: 80
+    wind_kt: 4
+    wind_dir_deg: 240
+    gust_kt: 6
+    pop_pct: 20
+    thunder_pct: 10
+    weather_text: isolated showers and thunderstorms
+  swell_components:
+    - {direction_deg: 80, height_ft: 3.5, period_s: 13, source: cwf}
+  marine_text: "SW winds around 5 kt. Seas 3 to 4 ft. Wave Detail: E 3 ft at 13 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [lightning]
+  rationale: Any thunderstorm wording in the session window is a lightning veto even when the numeric thunder probability is below 20% and the waves are epic.

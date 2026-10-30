@@ -1,0 +1,67 @@
+{
+ "@context": {
+  "@version": "1.1"
+ },
+ "type": "Feature",
+ "properties": {
+  "zone": "https://api.weather.gov/zones/forecast/AMZ650",
+  "updated": "2026-10-30T15:56:00-04:00",
+  "periods": [
+   {
+    "number": 1,
+    "name": "Tonight",
+    "detailedForecast": "E winds 20 to 25 kt. Seas 5 to 7 ft, occasionally to 9 ft. Wave Detail: N 6 ft at 7 seconds and E 4 ft at 4 seconds. Intracoastal waters rough in exposed areas. A slight chance of tstms. A chance of showers until early morning, then a slight chance of showers late."
+   },
+   {
+    "number": 2,
+    "name": "Sat",
+    "detailedForecast": "W winds around 5 kt. Seas 2 to 3 ft. Wave Detail: E 3 ft at 11 seconds."
+   },
+   {
+    "number": 3,
+    "name": "Sat Night",
+    "detailedForecast": "E winds 25 to 30 kt. Seas 7 to 10 ft, occasionally to 13 ft. Wave Detail: E 9 ft at 7 seconds. Intracoastal waters very rough in exposed areas. A chance of showers in the evening. Showers likely after midnight."
+   },
+   {
+    "number": 4,
+    "name": "Sun",
+    "detailedForecast": "E winds 20 to 25 kt with gusts up to 30 kt. Seas 6 to 9 ft, occasionally to 11 ft. Wave Detail: E 8 ft at 7 seconds and NW 1 foot at 7 seconds. Intracoastal waters rough in exposed areas. Showers likely in the morning, then showers with a chance of tstms in the afternoon."
+   },
+   {
+    "number": 5,
+    "name": "Sun Night",
+    "detailedForecast": "E winds 20 to 25 kt with gusts up to 30 kt. Seas 5 to 8 ft, occasionally to 10 ft. Wave Detail: E 8 ft at 7 seconds and NW 2 ft at 7 seconds. Intracoastal waters rough in exposed areas. Showers with a chance of tstms."
+   },
+   {
+    "number": 6,
+    "name": "Mon",
+    "detailedForecast": "E winds 15 to 20 kt with gusts up to 25 kt. Seas 5 to 7 ft, occasionally to 9 ft. Wave Detail: E 6 ft at 6 seconds and NW 2 ft at 8 seconds. Intracoastal waters choppy in exposed areas. Showers with a chance of tstms."
+   },
+   {
+    "number": 7,
+    "name": "Mon Night",
+    "detailedForecast": "E winds 10 to 15 kt. Seas 3 to 5 ft, occasionally to 6 ft. Intracoastal waters a moderate chop. A chance of tstms early in the evening. Showers until early morning, then a chance of showers late."
+   },
+   {
+    "number": 8,
+    "name": "Tue",
+    "detailedForecast": "E winds 10 to 15 kt. Seas 2 to 4 ft, occasionally to 5 ft. Intracoastal waters a moderate chop. A chance of showers."
+   },
+   {
+    "number": 9,
+    "name": "Tue Night",
+    "detailedForecast": "E winds 10 to 15 kt, diminishing to 5 to 10 kt after midnight. Seas 2 to 4 ft, occasionally to 5 ft. Intracoastal waters a moderate chop. A chance of showers until early morning."
+   },
+   {
+    "number": 10,
+    "name": "Wed",
+    "detailedForecast": "SE winds 5 to 10 kt. Seas 2 to 4 ft, occasionally to 5 ft. Intracoastal waters light chop. A chance of showers in the afternoon."
+   },
+   {
+    "number": 11,
+    "name": "Wed Night",
+    "detailedForecast": "S winds around 5 kt. Seas 2 to 3 ft. Intracoastal waters smooth. A chance of showers until early morning. Winds and seas higher in and near tstms."
+   }
+  ]
+ }
+}

@@ -1,0 +1,18 @@
+id: blown-out-e-12kt
+description: 3.5 ft @ 8 s E swell with E winds 12 kt straight onshore.
+tags: [onshore, blown-out]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 8
+    swell_dir_deg: 80
+    wind_kt: 12
+    wind_dir_deg: 80
+    gust_kt: 17
+    pop_pct: 20
+    thunder_pct: 0
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: Decent swell but 12 kt straight onshore wind chops it up (wind factor 0.3), so the score is around 2.

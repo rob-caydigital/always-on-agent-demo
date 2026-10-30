@@ -1,0 +1,19 @@
+id: lightning-marine-text-tstms
+description: Decent 4 ft @ 9 s with light W wind; gridpoint shows no thunder but the CWF says scattered showers and tstms.
+tags: [veto, safety, lightning, marine-text]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 9
+    swell_dir_deg: 75
+    wind_kt: 7
+    wind_dir_deg: 250
+    gust_kt: 12
+    pop_pct: 30
+    thunder_pct: 0
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 5 ft. Wave Detail: E 4 ft at 9 seconds. Scattered showers and tstms."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [lightning]
+  rationale: Thunderstorm wording in the marine forecast is a lightning veto even when the gridded thunder probability is zero.

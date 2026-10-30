@@ -1,0 +1,18 @@
+id: flat-just-under-minimum
+description: 2.6 ft @ 7 s E wind swell, light offshore - estimated face 2.9 ft, just under the 3 ft minimum.
+tags: [veto, flat, borderline]
+input:
+  conditions:
+    wave_height_ft: 2.6
+    wave_period_s: 7
+    swell_dir_deg: 85
+    wind_kt: 4
+    wind_dir_deg: 250
+    gust_kt: 6
+    pop_pct: 10
+    thunder_pct: 0
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [flat]
+  rationale: 2.6 ft x 1.1 = 2.86 ft face is below the 3 ft rideable minimum; knee-to-thigh weak wind swell is not worth waking up for.

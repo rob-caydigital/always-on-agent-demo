@@ -53,7 +53,7 @@ spot:
   lon: -80.0557
   timezone: America/New_York
   beach_facing_deg: 73    # ENE (shore bearing ~343°, ±5°). Offshore wind = ~253° (WSW)
-  swell_window_deg: [20, 140]   # swell directions that actually reach the beach (NNE through SE)
+  swell_window_deg: [0, 150]    # swell directions that reach the beach (N through SSE; N swell wraps in at Juno)
   noaa:                   # all verified live 2026-10-30; see ARCHITECTURE.md §11
     nws_grid: MFL/111,100 # offshore cell (cleaner swell fields than pier cell 110,100)
     marine_zone: AMZ650   # Coastal waters Jupiter Inlet to Deerfield Beach, 0–20 NM

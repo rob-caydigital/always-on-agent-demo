@@ -1,0 +1,22 @@
+id: groundswell-17s-small-glassy
+description: Long-range 2 ft @ 17 s ENE groundswell, glassy at dawn.
+tags: [groundswell, long-period, glassy, rare]
+input:
+  conditions:
+    wave_height_ft: 2
+    wave_period_s: 17
+    swell_dir_deg: 60
+    wind_kt: 3
+    wind_dir_deg: 280
+    gust_kt: 5
+    pop_pct: 0
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 60, height_ft: 2, period_s: 17, source: cwf}
+  marine_text: "Light and variable winds. Seas 2 ft. Wave Detail: ENE 2 ft at 17 seconds."
+  buoy_now: {station: "41114", observed_at: "2026-11-15T04:40:00-05:00", height_ft: 2.3, period_s: 16, direction_deg: 62}
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: Small numbers but 17 s period means ~3.5 ft sets with real push, glassy conditions, and the buoy confirms the long period has arrived.

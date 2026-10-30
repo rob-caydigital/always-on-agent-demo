@@ -1,0 +1,23 @@
+id: gale-sustained-ne
+description: Nor'easter - 6 ft @ 8 s NE wind swell with NE winds 22 kt gusting 30.
+tags: [veto, safety, gale, onshore]
+input:
+  conditions:
+    wave_height_ft: 6
+    wave_period_s: 8
+    swell_dir_deg: 45
+    wind_kt: 22
+    wind_dir_deg: 45
+    gust_kt: 30
+    pop_pct: 30
+    thunder_pct: 0
+  alerts:
+    - event: Small Craft Advisory
+      severity: Minor
+      headline: Small Craft Advisory in effect through Sunday evening
+  marine_text: "NE winds 20 to 25 kt. Seas 6 to 8 ft. Wave Detail: NE 6 ft at 8 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [gale]
+  rationale: Sustained 22 kt wind is a gale veto, and it is a blown-out onshore mess anyway.

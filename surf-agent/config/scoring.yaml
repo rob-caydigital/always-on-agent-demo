@@ -1,0 +1,46 @@
+# SPEC §6 tables. Every bucket is lower-inclusive: a value equal to `min_*` falls in that bucket.
+version: "2026-10-30.1"
+
+period_buckets:              # face multiplier and quality factor by dominant period
+  - {min_s: 0,  face_multiplier: 1.0, quality: 0.2}    # wind chop
+  - {min_s: 6,  face_multiplier: 1.1, quality: 0.5}    # typical FL wind swell
+  - {min_s: 8,  face_multiplier: 1.2, quality: 0.75}
+  - {min_s: 10, face_multiplier: 1.4, quality: 1.0}
+  - {min_s: 13, face_multiplier: 1.6, quality: 1.05}
+  - {min_s: 16, face_multiplier: 1.8, quality: 1.1}
+
+swell_direction:             # angle between swell direction and beach-facing direction
+  buckets:
+    - {max_off_deg: 30, factor: 1.0}
+    - {max_off_deg: 60, factor: 0.8}
+    - {max_off_deg: 80, factor: 0.5}
+  outside_window_factor: 0.2   # also used for in-window swells more than 80° off
+  unknown_factor: 0.8
+
+wind_classes:                # angle between wind direction and the offshore direction
+  - {name: offshore,       max_off_deg: 30}
+  - {name: cross_offshore, max_off_deg: 67}
+  - {name: cross,          max_off_deg: 112}
+  - {name: cross_onshore,  max_off_deg: 150}
+  - {name: onshore,        max_off_deg: 180}
+
+wind_factors:                # by sustained-speed bucket (kt)
+  - {min_kt: 0,  offshore: 1.1, cross_offshore: 1.1,  cross: 1.1,  cross_onshore: 1.1,  onshore: 1.1}
+  - {min_kt: 5,  offshore: 1.1, cross_offshore: 1.0,  cross: 0.85, cross_onshore: 0.7,  onshore: 0.6}
+  - {min_kt: 10, offshore: 1.0, cross_offshore: 0.85, cross: 0.6,  cross_onshore: 0.45, onshore: 0.3}
+  - {min_kt: 15, offshore: 0.7, cross_offshore: 0.6,  cross: 0.35, cross_onshore: 0.2,  onshore: 0.1}
+wind_unknown_factor: 0.85
+
+weather:
+  pop_buckets:
+    - {min_pct: 0,  factor: 1.0}
+    - {min_pct: 30, factor: 0.9}
+    - {min_pct: 60, factor: 0.8}
+  small_craft_factor: 0.9
+
+vetoes:
+  thunder_pct: 20
+  thunder_words: [thunder, tstm]
+  severe_events: [Special Marine Warning, Severe Thunderstorm Warning, Tornado Warning]
+  gale_sustained_kt: 20
+  gale_gust_kt: 28

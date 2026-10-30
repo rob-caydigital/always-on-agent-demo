@@ -1,0 +1,19 @@
+id: wind-shift-onshore-by-7
+description: 3.5 ft @ 9 s E swell; offshore only at dawn, E 14 kt from 7 AM.
+tags: [hourly, best-block, wind-shift, maybe]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 9
+    swell_dir_deg: 80
+    pop_pct: 10
+    thunder_pct: 0
+  hours:
+    - {wind_kt: 5, wind_dir_deg: 250, gust_kt: 8}
+    - {wind_kt: 14, wind_dir_deg: 80, gust_kt: 18}
+    - {wind_kt: 15, wind_dir_deg: 75, gust_kt: 20}
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE, NO_GO]
+  vetoes: []
+  rationale: Only one clean hour before it blows out, so no full 2-hour session; the block averages ~5.25, a MAYBE at best.

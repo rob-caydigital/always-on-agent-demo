@@ -1,0 +1,19 @@
+id: blown-out-ne-16kt
+description: Typical fall NE flow - 4 ft @ 7 s NE wind swell with NE winds 16 kt.
+tags: [onshore, blown-out, wind-swell]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 7
+    swell_dir_deg: 45
+    wind_kt: 16
+    wind_dir_deg: 45
+    gust_kt: 22
+    pop_pct: 20
+    thunder_pct: 0
+  marine_text: "NE winds 15 to 20 kt. Seas 4 to 6 ft. Wave Detail: NE 4 ft at 7 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: Plenty of size but short-period swell under a 16 kt onshore wind is a blown-out mess; no veto, just a very low score.

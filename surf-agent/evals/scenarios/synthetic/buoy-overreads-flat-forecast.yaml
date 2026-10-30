@@ -1,0 +1,21 @@
+id: buoy-overreads-flat-forecast
+description: Forecast 2.5 ft @ 7 s (flat) but buoy 41114, 76 km north and outside the Bahamas shadow, reads 4 ft @ 8 s.
+tags: [veto, flat, buoy-disagreement, llm-cannot-override]
+input:
+  conditions:
+    wave_height_ft: 2.5
+    wave_period_s: 7
+    swell_dir_deg: 60
+    wind_kt: 4
+    wind_dir_deg: 260
+    gust_kt: 6
+    pop_pct: 10
+    thunder_pct: 0
+  marine_text: "Light and variable winds. Seas 2 to 3 ft. Wave Detail: NE 2 ft at 7 seconds."
+  buoy_now: {station: "41114", observed_at: "2026-11-15T04:40:00-05:00", height_ft: 4.0, period_s: 8, direction_deg: 50}
+  wind_now: {station: LKWF1, observed_at: "2026-11-15T04:50:00-05:00", wind_kt: 3, gust_kt: 5, direction_deg: 255}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [flat]
+  rationale: The flat veto holds (2.75 ft face); the bigger reading comes from a buoy that over-reads for Juno, and nothing may override a veto.

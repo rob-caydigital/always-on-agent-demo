@@ -1,0 +1,8 @@
+id: real-2026-10-31-onshore-windswell
+description: Real NOAA data captured the evening of 2026-10-30, previewing Sat 2026-10-31 at Juno. E/ENE wind ~19 kt onshore, NE 7 ft at 6 s wind swell, Small Craft Advisory.
+tags: [real, blown-out]
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: Strong onshore wind over short-period wind swell is classic blown-out Juno; nobody should be woken for it.

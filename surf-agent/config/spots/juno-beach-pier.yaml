@@ -1,0 +1,23 @@
+# Verified live 2026-10-30 (see docs/ARCHITECTURE.md §3, §11).
+id: juno-beach-pier
+name: Juno Beach Pier
+spoken_name: Juno Pier
+lat: 26.8933
+lon: -80.0557
+timezone: America/New_York
+beach_facing_deg: 73          # ENE; offshore wind is ~253° (WSW)
+swell_window_deg: [0, 150]    # N through SSE. N swell wraps in at Juno, so the window starts at 0°
+notes: >-
+  Mostly short-period wind swell. Long-period groundswell (12 s+) is rare and special.
+  NE/E wind is onshore (blown out); W/SW/NW is offshore. Buoy 41114 sits ~76 km north,
+  outside the Bahamas shadow, and can over-read for Juno.
+noaa:
+  nws_wfo: MFL
+  nws_grid_x: 111             # offshore cell; cleaner swell fields than the pier cell 110,100
+  nws_grid_y: 100
+  marine_zone: AMZ650
+  alert_zones: [FLZ168, AMZ650]
+  wave_buoy: "41114"
+  wind_station: LKWF1
+  wind_station_fallback: KDJT
+  tide_station: "8722495"

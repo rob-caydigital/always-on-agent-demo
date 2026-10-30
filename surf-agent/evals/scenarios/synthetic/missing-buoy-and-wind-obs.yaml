@@ -1,0 +1,22 @@
+id: missing-buoy-and-wind-obs
+description: 3.5 ft @ 9 s E swell, WSW 6 kt forecast; buoy 41114 and both wind stations are down.
+tags: [missing-data, still-decide]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 9
+    swell_dir_deg: 80
+    wind_kt: 6
+    wind_dir_deg: 245
+    gust_kt: 9
+    pop_pct: 10
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 80, height_ft: 3.5, period_s: 9, source: cwf}
+  marine_text: "WSW winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 3 ft at 9 seconds."
+  missing_sources: [buoy_41114, wind_LKWF1, wind_KDJT]
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: Missing observations only lower confidence; the gridpoint and CWF agree on a fun 9 s swell with offshore wind (score ~8.25), so the agent must still decide GO.

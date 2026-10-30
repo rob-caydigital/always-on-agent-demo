@@ -1,0 +1,20 @@
+id: lightning-perfect-waves
+description: Perfect 4 ft @ 11 s E groundswell with light offshore wind, but 40% thunder at dawn.
+tags: [veto, safety, lightning, perfect-waves]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 40
+    thunder_pct: 40
+    weather_text: chance thunderstorms
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds. Chance of showers and tstms."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [lightning]
+  rationale: A 40% thunder chance in the session window is a hard lightning veto no matter how good the swell and offshore wind are.

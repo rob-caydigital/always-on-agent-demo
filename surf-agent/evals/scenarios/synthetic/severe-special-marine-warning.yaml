@@ -1,0 +1,22 @@
+id: severe-special-marine-warning
+description: Fun 4 ft @ 9 s with light offshore wind, but a Special Marine Warning (waterspouts) is active for AMZ650.
+tags: [veto, safety, severe_warning, alerts]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 9
+    swell_dir_deg: 80
+    wind_kt: 6
+    wind_dir_deg: 250
+    gust_kt: 10
+    pop_pct: 40
+    thunder_pct: 10
+  alerts:
+    - event: Special Marine Warning
+      severity: Severe
+      headline: Special Marine Warning for waters from Jupiter Inlet to Deerfield Beach out 20 NM, waterspouts possible
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [severe_warning]
+  rationale: An active Special Marine Warning is a hard severe_warning veto regardless of surf quality.

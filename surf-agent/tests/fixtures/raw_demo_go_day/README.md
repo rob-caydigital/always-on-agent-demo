@@ -1,0 +1,1 @@
+Demo fixture: the real 2026-10-30 capture edited into a GO morning (E 3 ft at 11 s, light W wind, no alerts or thunder). Used by tests and for `surf-check --replay tests/fixtures/raw_demo_go_day --force-wake` to demo a simulated wake-up.

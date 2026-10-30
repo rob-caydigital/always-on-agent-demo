@@ -1,0 +1,20 @@
+id: no-wave-data
+description: Gridpoint waves, CWF and buoy all failed; only wind data is available.
+tags: [veto, no_wave_data, missing-data, fail-closed]
+input:
+  conditions:
+    wave_height_ft: null
+    wave_period_s: null
+    swell_dir_deg: null
+    wind_kt: 6
+    wind_dir_deg: 250
+    gust_kt: 9
+    pop_pct: 10
+    thunder_pct: 0
+  missing_sources: [gridpoint_waves, cwf, buoy_41114]
+  wind_now: {station: LKWF1, observed_at: "2026-11-15T04:50:00-05:00", wind_kt: 6, gust_kt: 9, direction_deg: 250}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [no_wave_data]
+  rationale: With no wave forecast or observation the agent must fail closed and let the user sleep, even though the wind looks good.

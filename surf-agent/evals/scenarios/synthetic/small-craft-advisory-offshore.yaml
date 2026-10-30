@@ -1,0 +1,23 @@
+id: small-craft-advisory-offshore
+description: 4 ft @ 9 s E swell with W winds 12 kt gusting 20 and a Small Craft Advisory for seas offshore.
+tags: [alerts, small-craft, offshore]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 9
+    swell_dir_deg: 80
+    wind_kt: 12
+    wind_dir_deg: 265
+    gust_kt: 20
+    pop_pct: 10
+    thunder_pct: 0
+  alerts:
+    - event: Small Craft Advisory
+      severity: Minor
+      headline: Small Craft Advisory in effect until 10 AM EST for seas 6 to 7 ft in the Gulf Stream
+  marine_text: "W winds 10 to 15 kt. Seas 4 to 6 ft, occasionally to 7 ft in the Gulf Stream. Wave Detail: E 4 ft at 9 seconds."
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: The SCA is a penalty, not a veto; nearshore it is a fun 4.8 ft face with offshore wind (~6.75), so GO with the SCA mentioned.

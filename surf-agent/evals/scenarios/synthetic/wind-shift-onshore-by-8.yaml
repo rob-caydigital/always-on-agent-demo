@@ -1,0 +1,19 @@
+id: wind-shift-onshore-by-8
+description: 3.5 ft @ 9 s E swell; WSW 5 kt at dawn and 7 AM, sea breeze turns E 14 kt by 8 AM.
+tags: [hourly, best-block, wind-shift]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 9
+    swell_dir_deg: 80
+    pop_pct: 10
+    thunder_pct: 0
+  hours:
+    - {wind_kt: 5, wind_dir_deg: 250, gust_kt: 8}
+    - {wind_kt: 4, wind_dir_deg: 260, gust_kt: 7}
+    - {wind_kt: 14, wind_dir_deg: 85, gust_kt: 18}
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: The 6-8 AM block is clean and offshore (~8.25), which is the 2-hour session needed before work; the 8 AM onshore turn does not matter.

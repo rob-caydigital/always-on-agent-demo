@@ -1,0 +1,21 @@
+id: south-swell-outside-window
+description: Big 5 ft @ 11 s S swell (190 deg) from a Caribbean system; blocked by the Bahamas and outside Juno's 0-150 deg window.
+tags: [swell-window, outside-window, offshore]
+input:
+  conditions:
+    wave_height_ft: 5
+    wave_period_s: 11
+    swell_dir_deg: 190
+    wind_kt: 6
+    wind_dir_deg: 260
+    gust_kt: 9
+    pop_pct: 10
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 190, height_ft: 5, period_s: 11, source: cwf}
+  marine_text: "W winds 5 to 10 kt. Seas 4 to 6 ft. Wave Detail: S 5 ft at 11 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: A south swell outside the window does not reach an ENE-facing beach in the Bahamas shadow, so the offshore numbers are misleading and Juno will be small.
