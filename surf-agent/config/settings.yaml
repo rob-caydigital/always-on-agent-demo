@@ -15,7 +15,7 @@ session:
 
 llm:
   enabled: true
-  model: claude-opus-5-5
+  model: claude-sonnet-5-5   # chosen 2026-10-30 from the eval (docs/EVAL_RESULTS.md)
   effort: low
   max_tokens: 4000
   timeout_s: 60

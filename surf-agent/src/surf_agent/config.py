@@ -29,7 +29,7 @@ class Session(BaseModel):
 
 class LLMSettings(BaseModel):
     enabled: bool = True
-    model: str = "claude-opus-5-5"
+    model: str = "claude-sonnet-5-5"
     effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
     max_tokens: int = 4000
     timeout_s: float = 60

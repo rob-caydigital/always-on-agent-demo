@@ -137,11 +137,11 @@ class Decision(BaseModel):
 
 | Setting | Value | Why |
 |---|---|---|
-| SDK | `anthropic` Python SDK, `client.messages.parse(output_format=Assessment)` | Validated Pydantic output; no hand-parsing JSON |
-| Model | **`claude-opus-5-5`** by default, set in config (`llm.model`) | The current default model. The eval harness compares cheaper candidates (Sonnet 5.5, Haiku 4.5) so you can switch with evidence (see §12) |
-| Thinking / effort | Adaptive thinking (always on for Opus 5.5), `output_config.effort: "low"` | A bounded judgment task. Low effort keeps latency and cost down; evals confirm quality holds |
+| SDK | `anthropic` Python SDK, `client.beta.messages.create` with `output_config.format` (JSON schema), validated into the `Assessment` Pydantic model | Schema-constrained output; no hand-parsing free text. The beta client carries the refusal-fallback parameter |
+| Model | **`claude-sonnet-5-5`**, set in config (`llm.model`) | Chosen from the eval: same decisions as Opus 5.5 on all 35 scenarios at under half the cost and ~40% lower latency (see §12, EVAL_RESULTS.md). `--model` overrides it per run |
+| Thinking / effort | Adaptive thinking (Sonnet 5.5's default; `thinking` is omitted), `output_config.effort: "low"` | A bounded judgment task. Low effort keeps latency and cost down; evals confirm quality holds |
 | `max_tokens` | 4000 | Room for thinking plus a small JSON output |
-| Refusal fallback | `betas=["server-side-fallback-2026-07-01"]`, `fallbacks="default"`; always check `stop_reason` | Recommended default for Opus 5.5. A weather question won't realistically trip it, but it costs nothing |
+| Refusal fallback | `betas=["server-side-fallback-2026-07-01"]`, `fallbacks="default"`; always check `stop_reason` | Recommended for current models; Sonnet 5.5 accepts only the `"default"` form. A weather question won't realistically trip it, but it costs nothing |
 | Timeout / retries | 60 s, SDK `max_retries=2` | Fits the < 60 s run target. On final failure, use the deterministic-only decision |
 
 ### Prompt layout (cache-friendly order)
@@ -157,7 +157,7 @@ messages:
         + ScoreResult (deterministic)  ── volatile, after the breakpoint
 ```
 
-- The static prefix target is **about 2–3K tokens**, well over Opus 5.5's 512-token minimum for caching. A unit test checks this with `client.messages.count_tokens`.
+- The static prefix target is **about 2–3K tokens**, well over Sonnet 5.5's 512-token minimum for caching (measured: about 2.7K). A `live`-marked test checks this with `client.messages.count_tokens`.
 - **Nothing that varies goes in `system`:** no dates, no "today is …". The run date lives only in the user message, which keeps the prefix byte-identical across runs.
 - The prompt file's SHA-256 (`prompt_version`) goes in every decision record, so eval results can be tied to an exact prompt.
 
@@ -165,9 +165,9 @@ messages:
 | Situation | Calls sharing the prefix within 5 min | Caching? |
 |---|---|---|
 | **Daily production run** | 1 call per day; any cache expires long before tomorrow | **Off by default.** A cache write costs 1.25× and nothing would read it. Becomes "on" automatically if a run makes a retry or second call |
-| **Eval suite (sync mode)** | 25–50 calls back to back | **On (5-min TTL).** The first call writes; the rest read at 0.05× input price on Opus 5.5 |
+| **Eval suite (sync mode)** | 25–50 calls back to back | **On (5-min TTL).** The first call writes; the rest read at 0.1× input price ($0.20/MTok on Sonnet 5.5). Measured hit rate: 73% of input tokens |
 | **Eval suite (Batch API)** | many | **On.** Batch gives 50% off and caching is best-effort on top |
-| **Iterating on the prompt locally** | several runs within minutes | On (`--cache` flag) |
+| **Iterating on the prompt locally** | several runs within minutes | On (set `llm.prompt_cache: on`) |
 
 Config: `llm.prompt_cache: auto | on | off`. `auto` turns it on for evals and multi-call runs. Every record logs `cache_creation_input_tokens` and `cache_read_input_tokens`, and the eval report shows the hit rate. A zero read count across an eval run fails a check (it's a silent-invalidator alarm).
 
@@ -178,8 +178,8 @@ Config: `llm.prompt_cache: auto | on | off`. `auto` turns it on for evals and mu
 4. `spoken_message` is checked: ≤ 25 words, no URLs or markup. If it fails, a deterministic template message is used instead.
 5. The model output can't trigger the notifier. Only `decide.py`'s decision can.
 
-### Rough cost per run (Opus 5.5 at $4 / $20 per MTok)
-About 3.5K input tokens (≈ $0.014), plus about 0.5–1K output and thinking tokens (≈ $0.01–0.02), for **≈ $0.02–0.035 per run**, slightly above SPEC's $0.02 target. On Sonnet 5.5 ($2 / $10) the same run is about $0.01–0.02. That's a decision for you; see §12.
+### Cost per run (measured)
+About 4–5K input tokens and ~320 output tokens per call. On **Sonnet 5.5** ($2 / $10 per MTok) that is **≈ $0.01 per daily run**, within SPEC's $0.02 target. Opus 5.5 ($4 / $20) measured $0.02–0.03 per uncached run.
 
 ## 6. Decision logic placement
 
@@ -334,7 +334,7 @@ Checked live on 2026-10-30 at about 20:45Z.
 
 ## 12. Decisions log (resolved 2026-10-30)
 
-1. **Model:** default to **Opus 5.5** at low effort. The first eval runs Opus 5.5 and Sonnet 5.5 side by side, and Rob picks from the results.
+1. **Model:** the build started on Opus 5.5 at low effort, and the first eval ran Opus 5.5 and Sonnet 5.5 side by side. Both passed every gate with identical decisions, so **Rob switched production to Sonnet 5.5** (low effort) for the lower cost and latency.
 2. **Language:** Python 3.12.
 
 ## 13. Later: scheduling (v2, recorded here so it doesn't get lost)

@@ -66,7 +66,7 @@ uv run surf-check eval --batch         # Message Batches API, 50% cost
 
 ## Efficiency notes
 
-- **Workflow:** a fixed workflow, not a tool loop. One Claude call per run, about 4–5K input tokens, roughly $0.02–0.03 on Opus 5.5 at low effort, 5–8 s.
+- **Workflow:** a fixed workflow, not a tool loop. One Claude call per run on **Sonnet 5.5** at low effort: about 4–5K input tokens, roughly $0.01 and 3–5 s. (Opus 5.5 also passes every gate, at about $0.02–0.03 and 5–8 s.)
 - **Caching:** the static prompt prefix is about 2.7K tokens and byte-stable: no dates, and keys sorted. Caching is **off** for the single daily call, because nothing would read it within the 5-minute TTL. It's **on** for evals, where 35 calls share the prefix.
 - **Fetching:** sources are fetched in parallel, cached on disk per `Cache-Control`, and retried with backoff. A failed source is reported, never fatal.
 - **Guardrails** live in code (`decide.py`):

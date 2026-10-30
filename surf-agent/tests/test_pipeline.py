@@ -102,3 +102,26 @@ def test_dry_run_never_calls_notifier(settings, spot, cfg, tmp_path, go_day):
     res = run_once(settings, spot, cfg, RunOptions(replay=go_day, use_llm=False, dry_run=True, force_wake=True),
                    data_dir=tmp_path, notifier=Boom())
     assert res.notify.mode == "dry_run" and not res.notify.woke
+
+
+@pytest.mark.live
+def test_static_prefix_is_cacheable(settings, spot):
+    """The system prompt + spot profile must exceed the model's minimum cacheable prefix (512 tokens)."""
+    import anthropic
+
+    params = llm.build_params(
+        *_minimal_inputs(spot, settings), spot, settings.preferences, settings.llm, cache=True
+    )
+    n = anthropic.Anthropic().messages.count_tokens(
+        model=params["model"], system=params["system"], messages=[{"role": "user", "content": "x"}]
+    ).input_tokens
+    assert n >= 512
+
+
+def _minimal_inputs(spot, settings):
+    from surf_agent.config import load_scoring
+    from surf_agent.scoring import score_snapshot
+    from surf_agent.testing import make_snapshot
+
+    snap = make_snapshot(conditions={"wave_height_ft": 3, "wave_period_s": 8})
+    return snap, score_snapshot(snap, spot, settings.preferences, load_scoring())

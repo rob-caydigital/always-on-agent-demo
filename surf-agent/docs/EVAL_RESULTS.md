@@ -33,5 +33,5 @@ The over-length messages ran 26–29 words: spot, size, period, wind, a reason a
 
 The first run also flagged one "ungrounded" number for Sonnet. It wrote "rain trims the score by 20%", which is correct for a 0.8 factor. The grader now recognizes percentages derived from factors.
 
-## Model choice (open for Rob)
-Both models pass every gate. Sonnet 5.5 is **less than half the cost** and **about 40% faster**, with identical decisions on this suite. The config still defaults to Opus 5.5, as decided in ARCHITECTURE §12. To switch, change `llm.model` in `config/settings.yaml`.
+## Model choice
+Both models pass every gate. Sonnet 5.5 is **less than half the cost** and **about 40% faster**, with identical decisions on this suite. **Decision (2026-10-30): production runs on Sonnet 5.5.** Opus 5.5 stays available with `--model claude-opus-5-5` or by changing `llm.model` in `config/settings.yaml`.
