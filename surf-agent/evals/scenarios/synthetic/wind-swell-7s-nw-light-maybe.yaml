@@ -1,0 +1,19 @@
+id: wind-swell-7s-nw-light-maybe
+description: 3.5 ft @ 7 s E wind swell with a light NW 8 kt breeze (cross-offshore) behind a weak front.
+tags: [wind-swell, short-period, cross-offshore, maybe]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 7
+    swell_dir_deg: 80
+    wind_kt: 8
+    wind_dir_deg: 310
+    gust_kt: 12
+    pop_pct: 10
+    thunder_pct: 0
+  marine_text: "NW winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 3 ft at 7 seconds."
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE]
+  vetoes: []
+  rationale: Clean but weak 7 s wind swell; shape is fine, power is not, so MAYBE (sleep in).

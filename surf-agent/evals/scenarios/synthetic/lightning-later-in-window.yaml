@@ -1,0 +1,22 @@
+id: lightning-later-in-window
+description: Clean 4 ft @ 10 s with offshore wind at 6-7 AM; storms forecast to build by 8 AM (thunder 30% in the last hour only).
+tags: [veto, safety, lightning, perfect-waves, hourly]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 10
+    swell_dir_deg: 85
+    wind_kt: 6
+    wind_dir_deg: 255
+    gust_kt: 9
+    pop_pct: 20
+    thunder_pct: 5
+  hours:
+    - {}
+    - {}
+    - {pop_pct: 50, thunder_pct: 30, weather_text: scattered thunderstorms}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [lightning]
+  rationale: The lightning veto covers the whole session window, so storms forecast for 8 AM kill the session even though the 6-7 AM block looks great.

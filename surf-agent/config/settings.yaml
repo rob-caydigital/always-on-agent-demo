@@ -1,0 +1,29 @@
+active_spot: juno-beach-pier
+
+preferences:                 # heights are estimated wave FACE height in feet (SPEC §4)
+  min_rideable_ft: 3
+  max_ft: null               # optional "too big" cap; off by default
+  go_threshold: 6.0
+  maybe_threshold: 4.5
+  wake_on_maybe: false
+  on_missing_data: sleep     # fail closed
+
+session:
+  start: dawn                # civil dawn
+  end: "08:30"
+  best_block_hours: 2
+
+llm:
+  enabled: true
+  model: claude-sonnet-5-5   # chosen 2026-10-30 from the eval (docs/EVAL_RESULTS.md)
+  effort: low
+  max_tokens: 4000
+  timeout_s: 60
+  prompt_cache: auto         # auto | on | off  (auto = on for evals / multi-call runs)
+  max_adjustment: 1.0
+
+notify:
+  provider: voicemonkey
+  voice: Joanna
+  language: en-US
+  announce_delay_s: 20

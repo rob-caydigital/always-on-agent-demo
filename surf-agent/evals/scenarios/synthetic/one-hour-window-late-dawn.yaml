@@ -1,0 +1,20 @@
+id: one-hour-window-late-dawn
+description: Late-October dawn leaves only a 1-hour window; 3 ft @ 7 s E wind swell, glassy.
+tags: [short-window, one-hour, maybe, wind-swell]
+input:
+  n_hours: 1
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 7
+    swell_dir_deg: 80
+    wind_kt: 3
+    wind_dir_deg: 270
+    gust_kt: 5
+    pop_pct: 10
+    thunder_pct: 0
+  marine_text: "Light and variable winds. Seas 2 to 3 ft. Wave Detail: E 3 ft at 7 seconds."
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE]
+  vetoes: []
+  rationale: The whole 1-hour window is judged when it is shorter than 2 hours; weak but glassy 7 s wind swell is a sleep-in MAYBE (~5.5).

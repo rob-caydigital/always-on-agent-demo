@@ -1,0 +1,18 @@
+id: just-above-go-cross-shore
+description: 3 ft @ 9 s E swell with N winds 7 kt (cross-shore).
+tags: [borderline, go-threshold]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 9
+    swell_dir_deg: 85
+    wind_kt: 7
+    wind_dir_deg: 0
+    gust_kt: 10
+    pop_pct: 10
+    thunder_pct: 0
+expect:
+  decision: GO
+  allowed_decisions: [GO, MAYBE]
+  vetoes: []
+  rationale: A fun 9 s swell with a light cross-shore texture is just good enough to go (~6.4); MAYBE is tolerated because it sits near the threshold.

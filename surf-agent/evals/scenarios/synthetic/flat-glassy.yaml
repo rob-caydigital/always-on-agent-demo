@@ -1,0 +1,19 @@
+id: flat-glassy
+description: Flat glassy day - 1.5 ft @ 7 s, light and variable wind, sunny.
+tags: [veto, flat, glassy]
+input:
+  conditions:
+    wave_height_ft: 1.5
+    wave_period_s: 7
+    swell_dir_deg: 90
+    wind_kt: 2
+    wind_dir_deg: 270
+    gust_kt: 4
+    pop_pct: 0
+    thunder_pct: 0
+  marine_text: "Variable winds less than 5 kt. Seas 1 to 2 ft. Wave Detail: E 1 ft at 7 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [flat]
+  rationale: Estimated face height is about 1.7 ft, well under the 3 ft minimum, so glassy conditions do not matter.

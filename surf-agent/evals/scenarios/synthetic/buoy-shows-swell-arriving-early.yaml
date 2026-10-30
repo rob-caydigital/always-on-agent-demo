@@ -1,0 +1,21 @@
+id: buoy-shows-swell-arriving-early
+description: Gridded forecast still shows 3 ft @ 7 s, but buoy 41114 reads 4.5 ft @ 12 s E and the CWF says a long-period E swell is building this morning.
+tags: [buoy-disagreement, llm-adjust-up, building-swell, borderline]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 7
+    swell_dir_deg: 85
+    wind_kt: 3
+    wind_dir_deg: 260
+    gust_kt: 5
+    pop_pct: 10
+    thunder_pct: 0
+  marine_text: "Light and variable winds. Seas 3 ft, building to 4 to 5 ft this morning. Wave Detail: E 3 ft at 7 seconds, becoming E 4 ft at 12 seconds."
+  buoy_now: {station: "41114", observed_at: "2026-11-15T04:40:00-05:00", height_ft: 4.5, period_s: 12, direction_deg: 80}
+  wind_now: {station: LKWF1, observed_at: "2026-11-15T04:50:00-05:00", wind_kt: 2, gust_kt: 4, direction_deg: 265}
+expect:
+  decision: GO
+  allowed_decisions: [GO, MAYBE]
+  vetoes: []
+  rationale: The buoy already shows the 12 s E swell the text forecast calls for, so a +1.0 adjustment from 5.5 to 6.5 is justified on a glassy morning; MAYBE is tolerated because the buoy over-reads Juno.

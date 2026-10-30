@@ -1,0 +1,18 @@
+id: gale-gusts-only-offshore
+description: Post-frontal 4 ft @ 10 s leftover swell with W winds 14 kt sustained but gusting 30 kt.
+tags: [veto, safety, gale, gusts, offshore]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 10
+    swell_dir_deg: 60
+    wind_kt: 14
+    wind_dir_deg: 270
+    gust_kt: 30
+    pop_pct: 10
+    thunder_pct: 0
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [gale]
+  rationale: Gusts of 28 kt or more alone trigger the gale veto, even with a moderate offshore sustained wind and decent swell.

@@ -1,0 +1,18 @@
+id: wind-swell-ese-cross-onshore
+description: 3.5 ft @ 6 s ESE wind swell with ESE winds 10 kt (cross-onshore).
+tags: [wind-swell, short-period, cross-onshore]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 6
+    swell_dir_deg: 100
+    wind_kt: 10
+    wind_dir_deg: 115
+    gust_kt: 15
+    pop_pct: 20
+    thunder_pct: 0
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: Weak 6 s swell plus 10 kt cross-onshore wind is a typical bumpy Juno morning that scores around 2.

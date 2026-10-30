@@ -1,0 +1,20 @@
+id: stale-cwf-direction-unknown
+description: CWF unavailable so swell direction is unknown; gridpoint says 3 ft @ 8 s with light W wind; buoy reading is 4 hours old.
+tags: [missing-data, stale, direction-unknown, still-decide]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 8
+    swell_dir_deg: null
+    wind_kt: 4
+    wind_dir_deg: 270
+    gust_kt: 6
+    pop_pct: 10
+    thunder_pct: 0
+  missing_sources: [cwf]
+  buoy_now: {station: "41114", observed_at: "2026-11-15T01:00:00-05:00", height_ft: 3.3, period_s: 8, direction_deg: 75}
+expect:
+  decision: GO
+  allowed_decisions: [GO, MAYBE]
+  vetoes: []
+  rationale: Unknown direction costs a 0.8 factor but 3.6 ft faces at 8 s with glassy offshore wind still score ~6.6; the stale buoy loosely supports an E swell, so GO with MAYBE tolerated for the data gaps.

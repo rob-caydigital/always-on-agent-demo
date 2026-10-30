@@ -1,0 +1,19 @@
+id: maybe-se-swell-light-rain
+description: 3 ft @ 8 s SE swell (120 deg) with SSW 7 kt and 35% showers.
+tags: [borderline, maybe, rain]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 8
+    swell_dir_deg: 120
+    wind_kt: 7
+    wind_dir_deg: 200
+    gust_kt: 11
+    pop_pct: 35
+    thunder_pct: 5
+    weather_text: chance showers
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE]
+  vetoes: []
+  rationale: Rideable 8 s swell but angled SE, slightly cross-offshore breeze and some showers make it a middling session (~5.4).

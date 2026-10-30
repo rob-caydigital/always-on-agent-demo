@@ -1,0 +1,21 @@
+id: groundswell-15s-offshore
+description: Rare 3 ft @ 15 s E groundswell with light WSW wind.
+tags: [groundswell, long-period, offshore, rare]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 15
+    swell_dir_deg: 85
+    wind_kt: 6
+    wind_dir_deg: 250
+    gust_kt: 9
+    pop_pct: 10
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 85, height_ft: 3, period_s: 15, source: cwf}
+  marine_text: "WSW winds 5 to 10 kt. Seas 2 to 3 ft. Wave Detail: E 3 ft at 15 seconds."
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: A 15 s groundswell turns 3 ft of open-ocean height into ~5 ft faces with real power, and light offshore wind makes it the rare epic Juno morning.

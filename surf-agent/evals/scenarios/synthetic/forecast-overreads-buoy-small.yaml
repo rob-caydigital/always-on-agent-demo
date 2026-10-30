@@ -1,0 +1,21 @@
+id: forecast-overreads-buoy-small
+description: Forecast 3.5 ft @ 9 s, but buoy 41114 (which normally over-reads Juno) shows only 1.2 ft @ 5 s at 4:40 AM and the CWF says seas subsiding.
+tags: [buoy-disagreement, llm-adjust-down, borderline]
+input:
+  conditions:
+    wave_height_ft: 3.5
+    wave_period_s: 9
+    swell_dir_deg: 80
+    wind_kt: 7
+    wind_dir_deg: 300
+    gust_kt: 10
+    pop_pct: 35
+    thunder_pct: 0
+  marine_text: "NW winds 5 to 10 kt. Seas 2 to 4 ft, subsiding to 1 to 2 ft in the afternoon. Wave Detail: E 3 ft at 9 seconds."
+  buoy_now: {station: "41114", observed_at: "2026-11-15T04:40:00-05:00", height_ft: 1.2, period_s: 5, direction_deg: 70}
+  wind_now: {station: LKWF1, observed_at: "2026-11-15T04:50:00-05:00", wind_kt: 6, gust_kt: 9, direction_deg: 295}
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE]
+  vetoes: []
+  rationale: Base score ~6.75 says GO, but a buoy that over-reads Juno showing 1.2 ft @ 5 s plus a subsiding text forecast justify a -1.0 adjustment into MAYBE; a GO here is a false wake.

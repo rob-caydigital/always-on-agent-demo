@@ -1,0 +1,19 @@
+id: just-below-go-cross-shore-showers
+description: 3 ft @ 9 s E swell with N winds 7 kt (cross-shore) and 40% showers.
+tags: [borderline, go-threshold, rain]
+input:
+  conditions:
+    wave_height_ft: 3
+    wave_period_s: 9
+    swell_dir_deg: 85
+    wind_kt: 7
+    wind_dir_deg: 0
+    gust_kt: 10
+    pop_pct: 40
+    thunder_pct: 5
+    weather_text: chance showers
+expect:
+  decision: MAYBE
+  allowed_decisions: [MAYBE, GO]
+  vetoes: []
+  rationale: Same surf as the just-above case but a likely rainy session tips it to MAYBE (~5.7); GO is tolerated since it is within the LLM's adjustment band.

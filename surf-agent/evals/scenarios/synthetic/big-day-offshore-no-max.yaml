@@ -1,0 +1,21 @@
+id: big-day-offshore-no-max
+description: Big 8 ft @ 12 s E swell (distant hurricane) with W winds 10 kt behind a front.
+tags: [big, groundswell, offshore, no-max]
+input:
+  conditions:
+    wave_height_ft: 8
+    wave_period_s: 12
+    swell_dir_deg: 70
+    wind_kt: 10
+    wind_dir_deg: 265
+    gust_kt: 15
+    pop_pct: 10
+    thunder_pct: 0
+  swell_components:
+    - {direction_deg: 70, height_ft: 8, period_s: 12, source: cwf}
+  marine_text: "W winds 10 to 15 kt. Seas 7 to 9 ft. Wave Detail: ENE 8 ft at 12 seconds."
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: No max size is configured (SPEC §12), the wind is offshore and below gale, so a big clean groundswell day is a clear GO.

@@ -1,0 +1,19 @@
+id: wind-swell-5s-chop
+description: 4 ft @ 5 s E wind chop with E winds 10 kt.
+tags: [wind-swell, short-period, onshore, chop]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 5
+    swell_dir_deg: 90
+    wind_kt: 10
+    wind_dir_deg: 90
+    gust_kt: 14
+    pop_pct: 20
+    thunder_pct: 0
+  marine_text: "E winds 10 to 15 kt. Seas 3 to 5 ft. Wave Detail: E 4 ft at 5 seconds."
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: []
+  rationale: 5 s chop under onshore wind is closeout mush; size alone does not make it surfable.
