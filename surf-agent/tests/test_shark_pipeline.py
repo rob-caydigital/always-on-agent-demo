@@ -75,6 +75,14 @@ def test_shark_veto_beats_perfect_waves_and_positive_adjustment(settings, spot, 
     assert (res.run_dir / "raw" / "sharks.json").exists()
 
 
+def test_report_headline_for_shark_veto(settings, spot, cfg, tmp_path):
+    raw = go_day_with(tmp_path, feed(WHITE_NEAR_PIER))
+    res = run_once(settings, spot, cfg, RunOptions(replay=raw, use_llm=False), data_dir=tmp_path)
+    assert res.decision.decision == "NO_GO" and res.decision.final_score == 0
+    page = res.report.read_text(encoding="utf-8")
+    assert "A tagged shark surfaced near the pier." in page
+
+
 def test_shark_below_threshold_does_not_block(settings, spot, cfg, tmp_path):
     blue = json.loads(json.dumps(WHITE_NEAR_PIER))
     blue["properties"].update(species="Blue Shark (Prionace glauca)", stage_of_life="Juvenile", name="Azure")

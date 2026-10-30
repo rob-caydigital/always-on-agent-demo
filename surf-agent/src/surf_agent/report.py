@@ -139,13 +139,19 @@ _VETO_JOKES = {
     "flat": "Flat. Lake Juno is open for paddleboards and ducks.",
     "too_big": "Too big. The ocean is lifting heavy today and wants no spotters.",
     "no_wave_data": "No wave data. The agent fails closed, so you stay asleep.",
+    "shark": "A tagged shark surfaced near the pier. It has the lineup to itself this morning.",
+    # The shark veto also fires when the tracker is down and sharks.on_missing_data is "sleep".
+    "shark_unavailable": "The shark tracker is down and you asked to sleep when it is. Sleeping.",
 }
 
 
 def _headline(f: _Facts) -> str:
     vetoes = f.record.get("vetoes") or []
     if vetoes:
-        return _VETO_JOKES.get(vetoes[0]["code"], "Vetoed. Not even Claude can save this one.")
+        code = vetoes[0]["code"]
+        if code == "shark" and "unavailable" in vetoes[0].get("detail", ""):
+            code = "shark_unavailable"
+        return _VETO_JOKES.get(code, "Vetoed. Not even Claude can save this one.")
     if f.decision == "GO":
         return _pick(f.key, [
             "Go. Wax the board, skip the coffee.",
