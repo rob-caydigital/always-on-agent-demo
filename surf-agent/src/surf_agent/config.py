@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = ROOT / "config"
@@ -121,6 +122,53 @@ class VetoRules(BaseModel):
     gale_gust_kt: float
 
 
+class SpeciesWeight(BaseModel):
+    weight: float = Field(ge=0, le=1)
+    aliases: list[str] = Field(default_factory=list)
+
+
+class RecencyBucket(BaseModel):
+    max_hours: float
+    factor: float
+
+
+class DistanceBucket(BaseModel):
+    max_mi: float
+    factor: float
+
+
+class SharkConfig(BaseModel):
+    """config/sharks.yaml (SPEC-shark-threat §10). Factor buckets are upper-inclusive."""
+
+    enabled: bool = True
+    radius_mi: float = 10
+    lookback_hours: float = 24
+    veto_threshold: float = 0.2
+    on_missing_data: Literal["ignore", "sleep"] = "ignore"
+    max_track_requests: int = 25
+    cache_minutes: int = 30
+    stale_after_hours: float = 2
+    species_weights: dict[str, SpeciesWeight]  # keyed by scientific name
+    unknown_species_weight: float = 0.5
+    stage_factors: dict[str, float]
+    recency_factors: list[RecencyBucket]
+    distance_factors: list[DistanceBucket]
+
+    @model_validator(mode="after")
+    def _consistent(self):
+        if self.cache_minutes > self.stale_after_hours * 60:
+            raise ValueError("cache_minutes must not exceed stale_after_hours")
+        if [b.max_hours for b in self.recency_factors] != sorted(b.max_hours for b in self.recency_factors):
+            raise ValueError("recency_factors must be in ascending max_hours order")
+        if [b.max_mi for b in self.distance_factors] != sorted(b.max_mi for b in self.distance_factors):
+            raise ValueError("distance_factors must be in ascending max_mi order")
+        if not self.recency_factors or self.recency_factors[-1].max_hours != self.lookback_hours:
+            raise ValueError("the last recency bucket must end at lookback_hours")
+        if not self.distance_factors or self.distance_factors[-1].max_mi != self.radius_mi:
+            raise ValueError("the last distance bucket must end at radius_mi")
+        return self
+
+
 class ScoringConfig(BaseModel):
     version: str
     period_buckets: list[PeriodBucket]
@@ -130,6 +178,7 @@ class ScoringConfig(BaseModel):
     wind_unknown_factor: float
     weather: WeatherRules
     vetoes: VetoRules
+    sharks: SharkConfig | None = None  # loaded from sharks.yaml; None = shark check off
 
 
 class ConfigError(RuntimeError):
@@ -157,7 +206,15 @@ def load_settings(config_dir: Path = CONFIG_DIR) -> Settings:
 
 def load_scoring(config_dir: Path = CONFIG_DIR) -> ScoringConfig:
     path = config_dir / "scoring.yaml"
-    return _validate(ScoringConfig, _load_yaml(path), path)
+    cfg = _validate(ScoringConfig, _load_yaml(path), path)
+    sharks_path = config_dir / "sharks.yaml"
+    if sharks_path.exists():
+        data = _load_yaml(sharks_path)
+        cfg.sharks = _validate(SharkConfig, data.get("sharks") or {}, sharks_path)
+        # Pin both tables in eval reports and decision records.
+        digest = hashlib.sha256(sharks_path.read_bytes()).hexdigest()[:8]
+        cfg.version = f"{cfg.version}+sharks-{digest}"
+    return cfg
 
 
 def load_spot(spot_id: str, config_dir: Path = CONFIG_DIR) -> Spot:

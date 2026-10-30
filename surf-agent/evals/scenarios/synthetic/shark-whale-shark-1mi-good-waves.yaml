@@ -1,0 +1,22 @@
+id: shark-whale-shark-1mi-good-waves
+description: "Good waves; a whale shark pinged 1 mi away 2 h ago (filter feeder, weight 0)."
+tags: [shark, below-threshold]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "Whale Shark (Rhincodon typus)", stage: "Adult", distance_mi: 1, age_h: 2, name: Gentle}
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: "Filter feeders weigh 0, so even a very close, very recent whale shark never vetoes."

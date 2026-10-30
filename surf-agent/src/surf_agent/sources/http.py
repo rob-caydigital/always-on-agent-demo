@@ -20,12 +20,17 @@ class SourceError(RuntimeError):
     pass
 
 
+class NotCaptured(SourceError):
+    """Replay data has no file for this request (e.g. a run saved before the source existed)."""
+
+
 @dataclass
 class Request:
     name: str  # also the raw file stem, e.g. "gridpoint"
     url: str
     kind: str = "json"  # json | text
     headers: dict[str, str] = field(default_factory=dict)
+    min_cache_s: int = 0  # cache at least this long even when the server sends no max-age
 
 
 class Fetcher(Protocol):
@@ -105,7 +110,7 @@ class LiveFetcher:
                 if r.status_code != 200:
                     raise SourceError(f"{req.name}: HTTP {r.status_code} from {req.url}")
                 body = r.text
-                self._cache_put(req.url, body, _max_age(r.headers))
+                self._cache_put(req.url, body, max(_max_age(r.headers), req.min_cache_s))
                 self.raw[req.name] = body
                 return body
             except httpx.HTTPError as e:
@@ -131,7 +136,7 @@ class ReplayFetcher:
     async def fetch(self, req: Request) -> str:
         p = self.raw_dir / raw_filename(req.name, req.kind)
         if not p.exists():
-            raise SourceError(f"{req.name}: not in replay data ({p.name})")
+            raise NotCaptured(f"{req.name}: not in replay data ({p.name})")
         body = p.read_text(encoding="utf-8")
         self.raw[req.name] = body
         return body

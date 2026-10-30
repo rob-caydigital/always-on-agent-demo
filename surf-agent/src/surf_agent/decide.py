@@ -8,7 +8,15 @@ from .config import Preferences, Spot
 from .models import Assessment, Decision, ScoreResult
 
 MAX_SPOKEN_WORDS = 25
-_BAD_SPOKEN = re.compile(r"https?://|[<>*#`\[\]{}]")
+_BAD_SPOKEN = re.compile(r"https?://|[<>*#`\[\]{}]|\bshark", re.IGNORECASE)
+_SHARK = re.compile(r"\bshark", re.IGNORECASE)
+# Tags only report when a shark surfaces, so never let an absence of pings read as safety (SPEC-shark-threat §7.2).
+_UNSAFE_SHARK = re.compile(r"\bno sharks\b|\bshark[- ]free\b|\bsafe from sharks\b|\bno shark activity\b", re.IGNORECASE)
+_ALL_CLEAR = re.compile(r"\ball clear\b", re.IGNORECASE)  # only unsafe when the text is about sharks
+
+
+def shark_wording_ok(text: str) -> bool:
+    return not (_UNSAFE_SHARK.search(text) or (_SHARK.search(text) and _ALL_CLEAR.search(text)))
 
 _WIND_WORDS = {
     "offshore": "offshore",
@@ -48,6 +56,9 @@ def template_message(decision: str, score: ScoreResult, final: float, spot: Spot
     return " ".join(parts)
 
 
+SHARK_UNAVAILABLE = "Shark tracker unavailable."
+
+
 def template_explanation(decision: str, score: ScoreResult, final: float) -> str:
     if score.vetoes:
         return "No-go: " + "; ".join(f"{v.code} ({v.detail})" for v in score.vetoes) + "."
@@ -60,6 +71,7 @@ def decide(
     prefs: Preferences,
     spot: Spot,
     max_adjustment: float = 1.0,
+    shark_status: str | None = None,
 ) -> Decision:
     notes: list[str] = []
     adj = 0.0
@@ -67,6 +79,9 @@ def decide(
         adj = assessment.adjustment
         if adj != 0 and not assessment.adjustment_reason.strip():
             notes.append(f"adjustment {adj:+.2f} dropped: no reason given")
+            adj = 0.0
+        if adj != 0 and _SHARK.search(assessment.adjustment_reason):
+            notes.append(f"adjustment {adj:+.2f} dropped: cites sharks (sharks are handled only by the veto)")
             adj = 0.0
         if abs(adj) > max_adjustment:
             clamped = max(-max_adjustment, min(max_adjustment, adj))
@@ -101,6 +116,11 @@ def decide(
         if assessment is not None and assessment.explanation.strip()
         else template_explanation(decision, score, final)
     )
+    if not shark_wording_ok(explanation):
+        notes.append("explanation failed shark wording check; using template")
+        explanation = template_explanation(decision, score, final)
+    if shark_status == "unavailable" and not (_SHARK.search(explanation) and "unavailable" in explanation.lower()):
+        explanation = f"{explanation} {SHARK_UNAVAILABLE}"
 
     return Decision(
         decision=decision,

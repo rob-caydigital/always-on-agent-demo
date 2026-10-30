@@ -42,7 +42,9 @@ class Scenario:
     snapshot: ConditionsSnapshot
 
 
-def load_scenarios(spot: Spot, settings: Settings, only: str | None = None) -> list[Scenario]:
+def load_scenarios(
+    spot: Spot, settings: Settings, only: str | None = None, scoring: ScoringConfig | None = None
+) -> list[Scenario]:
     out = []
     for p in sorted((SCENARIOS / "synthetic").glob("*.yaml")):
         d = yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -52,7 +54,10 @@ def load_scenarios(spot: Spot, settings: Settings, only: str | None = None) -> l
         raw = p.parent / "raw"
         meta = json.loads((raw / "meta.json").read_text(encoding="utf-8"))
         snap = asyncio.run(
-            build_snapshot(ReplayFetcher(raw), spot, settings.session, datetime.fromisoformat(meta["run_at"]))
+            build_snapshot(
+                ReplayFetcher(raw), spot, settings.session, datetime.fromisoformat(meta["run_at"]),
+                sharks=scoring.sharks if scoring else None,
+            )
         )
         out.append(Scenario(d["id"], "real", d.get("tags", []), d["expect"], snap))
     if only:  # comma-separated substrings
@@ -275,7 +280,7 @@ def run_suite(
         return 2
     if use_judge and judge_model in models:
         typer.secho(f"Warning: {judge_model} is grading its own outputs (self-preference bias).", fg="yellow")
-    scenarios = load_scenarios(spot, settings, only)
+    scenarios = load_scenarios(spot, settings, only, scoring)
     if not scenarios:
         typer.secho("No scenarios matched.", fg="red")
         return 1
@@ -311,7 +316,10 @@ def run_suite(
         for s in scenarios:
             o = outcomes.get(s.id)
             a = o.assessment if o else None
-            d = decide(scores[s.id], a, settings.preferences, spot, llm_cfg.max_adjustment)
+            d = decide(
+                scores[s.id], a, settings.preferences, spot, llm_cfg.max_adjustment,
+                shark_status=s.snapshot.sharks.status if s.snapshot.sharks else None,
+            )
             decisions[s.id] = d
             row = {"id": s.id, "kind": s.kind, "tags": s.tags,
                    **grade(s.expect, d, a, s.snapshot, scores[s.id], extra_numbers=spot.model_dump(mode="json"))}

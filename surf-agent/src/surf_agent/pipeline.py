@@ -76,6 +76,27 @@ def make_notifier(settings: Settings) -> VoiceMonkeyNotifier:
     )
 
 
+def shark_record(snapshot: ConditionsSnapshot, score: ScoreResult, cfg: ScoringConfig) -> dict:
+    """The decision record's `sharks` block (SPEC-shark-threat §7.1)."""
+    rep = snapshot.sharks
+    if rep is None:
+        return {"status": "not_captured"}
+    return {
+        **rep.model_dump(mode="json", exclude={"nearby"}),
+        "radius_mi": cfg.sharks.radius_mi if cfg.sharks else None,
+        "lookback_hours": cfg.sharks.lookback_hours if cfg.sharks else None,
+        "veto_threshold": cfg.sharks.veto_threshold if cfg.sharks else None,
+        "nearby": [
+            {**s.model_dump(mode="json", exclude={"pings"}), "rating": r.model_dump(mode="json")}
+            for r in score.sharks
+            for s in rep.nearby
+            if s.id == r.id
+        ],
+        "max_threat": score.sharks[0].threat if score.sharks else 0.0,
+        "vetoed": any(v.code == "shark" for v in score.vetoes),
+    }
+
+
 def run_once(
     settings: Settings,
     spot: Spot,
@@ -103,7 +124,7 @@ def run_once(
 
     async def _snap():
         async with fetcher:
-            return await build_snapshot(fetcher, spot, settings.session, run_at, opts.day)
+            return await build_snapshot(fetcher, spot, settings.session, run_at, opts.day, scoring_cfg.sharks)
 
     snapshot = asyncio.run(_snap())
 
@@ -122,7 +143,12 @@ def run_once(
 
     # 5. Decide (guardrails live here).
     decision = decide(
-        score, outcome.assessment if outcome else None, settings.preferences, spot, llm_cfg.max_adjustment
+        score,
+        outcome.assessment if outcome else None,
+        settings.preferences,
+        spot,
+        llm_cfg.max_adjustment,
+        shark_status=snapshot.sharks.status if snapshot.sharks else None,
     )
     if outcome and outcome.error:
         decision.guardrail_notes.append(f"llm_unavailable: {outcome.error}")
@@ -166,6 +192,7 @@ def run_once(
         "confidence": decision.confidence,
         "guardrail_notes": decision.guardrail_notes,
         "missing_sources": snapshot.missing_sources,
+        "sharks": shark_record(snapshot, score, scoring_cfg),
         "llm": {
             "used": decision.llm_used,
             "model": outcome.model if outcome else None,

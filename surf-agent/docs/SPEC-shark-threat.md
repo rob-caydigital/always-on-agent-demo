@@ -217,7 +217,7 @@ With the defaults, **any adult white, tiger or bull shark** that pinged inside 1
 | `shark-yoy-bull-8mi-18h-good-waves` | GO, explanation mentions the shark |
 | `shark-blue-5mi-10h-good-waves` | GO |
 | `shark-whale-shark-1mi-good-waves` | GO, no shark mention |
-| `shark-white-10.5mi-today-good-waves` | GO (outside radius) |
+| `shark-white-10-5mi-today-good-waves` | GO (outside radius) |
 | `shark-white-2mi-30h-ago-good-waves` | GO (outside lookback) |
 | `shark-passed-pier-12h-ago-now-40mi` | NO_GO (track ping counts, latest position doesn't) |
 | `shark-feed-unavailable-good-waves` | GO, explanation notes tracker unavailable |

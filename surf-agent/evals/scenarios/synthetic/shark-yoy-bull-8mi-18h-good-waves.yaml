@@ -1,0 +1,22 @@
+id: shark-yoy-bull-8mi-18h-good-waves
+description: "Good waves; a young-of-the-year bull shark pinged 8 mi away 18 h ago (threat 1.0 x 0.4 x 0.7 x 0.6 = 0.17)."
+tags: [shark, below-threshold]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "Bull Shark (Carcharhinus leucas)", stage: "Young of the Year", distance_mi: 8, age_h: 18, name: Pip}
+expect:
+  decision: GO
+  allowed_decisions: [GO]
+  vetoes: []
+  rationale: "A very young bull shark far out and most of a day ago rates 0.17, under the 0.2 threshold; it may be mentioned but must not block a GO."

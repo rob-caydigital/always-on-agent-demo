@@ -5,10 +5,10 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from surf_agent.decide import MAX_SPOKEN_WORDS
+from surf_agent.decide import MAX_SPOKEN_WORDS, shark_wording_ok
 from surf_agent.models import Assessment, ConditionsSnapshot, Decision, ScoreResult
 
-# SPEC §8.2 pass bars.
+# SPEC §8.2 and SPEC-shark-threat §9.4 pass bars.
 GATES = {
     "veto_recall": 1.0,
     "decision_accuracy": 0.90,
@@ -16,7 +16,11 @@ GATES = {
     "adjustment_ok": 1.0,
     "grounded": 0.95,
     "spoken_ok": 1.0,
+    "shark_wording_ok": 1.0,
+    "adjustment_no_shark": 1.0,
 }
+
+_SHARK = re.compile(r"\bshark", re.IGNORECASE)
 
 _NUM = re.compile(r"(?<![\w.])\d+(?:\.\d+)?")
 
@@ -108,6 +112,11 @@ def grade(
                 "grounded": not bad,
                 "ungrounded": bad,
                 "confidence": assessment.confidence,
+                # Raw model output, before decide.py's guardrails repair it.
+                "shark_wording_ok": shark_wording_ok(assessment.explanation)
+                and not _SHARK.search(assessment.spoken_message),
+                "adjustment_no_shark": assessment.adjustment == 0
+                or not _SHARK.search(assessment.adjustment_reason),
             }
         )
     return g
@@ -133,6 +142,8 @@ def summarize(rows: list[dict], llm_used: bool) -> dict:
                 "adjustment_ok": sum(r["adjustment_ok"] for r in llm_rows) / k,
                 "grounded": sum(r["grounded"] for r in llm_rows) / k,
                 "spoken_ok": sum(r["spoken_ok"] for r in llm_rows) / k,
+                "shark_wording_ok": sum(r["shark_wording_ok"] for r in llm_rows) / k,
+                "adjustment_no_shark": sum(r["adjustment_no_shark"] for r in llm_rows) / k,
             }
         )
     gates = {}

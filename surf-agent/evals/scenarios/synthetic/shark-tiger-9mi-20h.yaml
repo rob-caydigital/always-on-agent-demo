@@ -1,0 +1,22 @@
+id: shark-tiger-9mi-20h
+description: "Good waves; an adult tiger shark pinged 9 mi away 20 h ago (threat 1.0 x 1.0 x 0.7 x 0.6 = 0.42)."
+tags: [veto, safety, shark]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "Tiger Shark (Galeocerdo cuvier)", stage: "Adult", distance_mi: 9, age_h: 20, name: Lando}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [shark]
+  rationale: "Any adult white, tiger or bull shark inside 10 miles in the last 24 hours rates at least 0.42, which vetoes."
