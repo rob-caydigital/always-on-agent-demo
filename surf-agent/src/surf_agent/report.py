@@ -35,6 +35,7 @@ from .scoring import (
     size_score,
     swell_direction_factor,
 )
+from .sharks import common_name as _common_name
 
 REPORT_NAME = "report.html"
 
@@ -315,6 +316,11 @@ def _scene(f: _Facts) -> str:
                      '<polygon class="carve" points="534,111 538,111 536,107"/><polygon class="carve" points="542,111 546,111 544,107"/>'
                      '<path class="carve" d="M533,116 l3,3 l3,-3 l3,3 l3,-3 l2,2 v1 h-14 z"/></g>')
 
+    if _shark_vetoed(f):  # a dorsal fin cutting through the front wave
+        x = 500
+        y = wave_y(x, 214, amp, chop) + 4
+        parts.append(f'<path class="fin" d="M{x},{y:.0f} q8,-26 30,-32 q-8,14 -2,32 z"/>')
+
     parts.append('<path class="sand" d="M0,186 Q110,190 200,232 L232,300 L0,300 Z"/>')
     if f.decision == "GO":
         x = 430
@@ -341,7 +347,8 @@ def _scene(f: _Facts) -> str:
     body = "".join(parts)
     return (
         '<svg viewBox="0 0 720 300" role="img" aria-labelledby="scene-t"><title id="scene-t">'
-        f'Cartoon of Juno Pier: {face:.1f} ft faces at {period:.0f} s, {kt:.0f} kt wind</title>'
+        f'Cartoon of Juno Pier: {face:.1f} ft faces at {period:.0f} s, {kt:.0f} kt wind'
+        + (", and a shark fin" if _shark_vetoed(f) else "") + '</title>'
         '<defs><marker id="wind-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">'
         '<path class="gust-head" d="M1,1 L9,5 L1,9 Z"/></marker></defs>'
         f'{body}</svg>'
@@ -629,6 +636,73 @@ def _alexa_card(f: _Facts) -> str:
             f'<blockquote class="spoken">&ldquo;{_e(f.record.get("spoken_message", ""))}&rdquo;</blockquote></section>')
 
 
+_SHARK_CAVEAT = ("Tags only report when a shark's fin breaks the surface, and only a few hundred sharks carry one. "
+                 "A quiet tracker doesn't mean the water is empty.")
+
+
+def _shark_vetoed(f: _Facts) -> bool:
+    return any(v.code == "shark" and "unavailable" not in v.detail for v in f.score.vetoes)
+
+
+def _shark_card(f: _Facts) -> str:
+    rep, cfg = f.snap.sharks, f.cfg.sharks
+    status = rep.status if rep else "not_captured"
+    radius = f"{cfg.radius_mi:g} mi" if cfg else "the radius"
+    lookback = f"{cfg.lookback_hours:g} h" if cfg else "the lookback window"
+
+    def card(big: str, sub: str, lines: list[str], extra: str = "") -> str:
+        items = "".join(f"<li>{line}</li>" for line in lines)
+        return (f'<section class="card"><h3>Sharks</h3><p class="big">{big}</p><p class="sub">{sub}</p>'
+                f'<ul>{items}</ul>{extra}<p class="caveat">{_e(_SHARK_CAVEAT)}</p></section>')
+
+    if status == "not_captured":
+        return card("n/a", "not checked", ["This run's data was saved before the shark check existed."])
+    if status == "disabled":
+        return card("off", "shark check disabled", ["Turned off in config/sharks.yaml."])
+    if status == "unavailable":
+        sleep = cfg is not None and cfg.on_missing_data == "sleep"
+        return card("n/a", "shark tracker unavailable", [
+            _e(rep.detail or "no detail"),
+            "on_missing_data is sleep, so the tracker being down vetoes the morning." if sleep
+            else "on_missing_data is ignore, so the decision used the other sources.",
+        ])
+
+    ratings = f.score.sharks
+    lines = [f"OCEARCH feed: {rep.feed_sharks} tagged sharks; {rep.sharks_in_lookback} pinged anywhere in the last "
+             f"{lookback}; {rep.tracks_fetched} ping {'history' if rep.tracks_fetched == 1 else 'histories'} checked"
+             + (" (capped)" if rep.tracks_truncated else "") + "."]
+    if cfg:
+        lines.append(f"Threat = species &times; life stage &times; recency &times; distance, 0 to 1. "
+                     f"A shark at {cfg.veto_threshold:g} or more blocks the wake-up.")
+    veto = next((v for v in f.score.vetoes if v.code == "shark"), None)
+    if veto:
+        lines.append(f"<b>Veto:</b> {_e(veto.detail)}")
+    table = ""
+    if ratings:
+        by_id = {s.id: s for s in rep.nearby}
+        tz = f.snap.window_start.tzinfo
+        rows = []
+        for r in ratings:
+            s, p = by_id.get(r.id), r.worst_ping
+            blocks = cfg is not None and r.threat > 0 and r.threat >= cfg.veto_threshold
+            when = p.time.astimezone(tz)
+            rows.append(
+                "<tr>"
+                f"<td>{_e(r.name)}</td><td>{_e(_common_name(r.species))}</td>"
+                f"<td>{_e(s.stage_of_life if s and s.stage_of_life else 'n/a')}</td>"
+                f"<td class='num'>{p.distance_mi:.1f} mi</td>"
+                f"<td>{p.age_h:.0f} h ago, {when:%a} {_clock(when)}</td>"
+                f"<td class='num note'>{r.species_weight:g} &times; {r.stage_factor:g} &times; {r.recency_factor:g} &times; {r.distance_factor:g}</td>"
+                f"<td class='num'>{r.threat:.2f}</td><td>{'Yes' if blocks else 'No'}</td>"
+                "</tr>"
+            )
+        table = ('<div class="table-wrap"><table class="hourly sharks"><thead><tr><th>Shark</th><th>Species</th><th>Stage</th>'
+                 '<th>Distance</th><th>Ping</th><th>Factors</th><th>Threat</th><th>Blocks wake</th></tr></thead>'
+                 f'<tbody>{"".join(rows)}</tbody></table></div>')
+    sub = f"tagged {'shark' if len(ratings) == 1 else 'sharks'} within {radius} in the last {lookback}"
+    return card(str(len(ratings)), sub, lines, table)
+
+
 def _hourly_table(f: _Facts) -> str:
     by_time = {h.time: h for h in f.snap.hours}
     rows = []
@@ -674,13 +748,13 @@ _CSS = """
 --wind:#d9480f;--swell:#1c6fc2;--ideal:#2b8a3e;
 --sky:#fde3cf;--sea-back:#86c0db;--sea:#2f7fb0;--foam:#fff;--sand:#ecd5a6;--pier:#8a6a4a;--sun:#f6a821;
 --cloud:#fff;--cloud-edge:#c9d2db;--rain:#4f86b5;--bed:#a9503a;--blanket:#3f73a8;--pillow:#fff;--skin:#f0c29a;
---figure:#2b2b2b;--board:#f3efe6;--pumpkin:#ef7d17;--stem:#4d7c2a;--carve:#3b2208}
+--figure:#2b2b2b;--board:#f3efe6;--pumpkin:#ef7d17;--stem:#4d7c2a;--carve:#3b2208;--fin:#4b5662}
 @media (prefers-color-scheme:dark){:root{--bg:#131519;--card:#1c1f25;--ink:#e8e6e3;--muted:#a3aab4;--line:#2d323a;
 --go:#5cc98a;--maybe:#e6ad4f;--nogo:#f07a6a;--go-bg:#15301f;--maybe-bg:#33270f;--nogo-bg:#3b1a16;
 --wind:#ff8c52;--swell:#64adf2;--ideal:#63c574;
 --sky:#1d2a46;--sea-back:#2d5f80;--sea:#173f5e;--foam:#dbe7f0;--sand:#8c7650;--pier:#5d4734;--sun:#f29a3a;
 --cloud:#8b97aa;--cloud-edge:#6d788a;--rain:#86b6e0;--bed:#7f3b2a;--blanket:#2f5a87;--pillow:#cfd6de;--skin:#d6a47c;
---figure:#f2efe9;--board:#d9d3c5;--pumpkin:#f0892a;--stem:#6aa13c;--carve:#24150a}}
+--figure:#f2efe9;--board:#d9d3c5;--pumpkin:#f0892a;--stem:#6aa13c;--carve:#24150a;--fin:#a7b3c0}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:980px;margin:0 auto;padding:24px 16px 40px}
@@ -700,7 +774,8 @@ text-transform:uppercase;letter-spacing:.04em}
 .grid.four{margin-bottom:16px}
 .big{font-size:30px;font-weight:700;margin:0;font-variant-numeric:tabular-nums}
 ul{margin:8px 0;padding-left:18px;color:var(--muted)}li{margin:2px 0}
-.joke{margin:10px 0 0;padding-top:10px;border-top:1px dashed var(--line);font-style:italic}
+.joke,.caveat{margin:10px 0 0;padding-top:10px;border-top:1px dashed var(--line);font-style:italic}
+.caveat{color:var(--muted);font-size:13px}.fin{fill:var(--fin)}.sharks td,.sharks th{white-space:nowrap}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .receipt td{padding:5px 6px;border-bottom:1px dotted var(--line);vertical-align:top}
 .receipt td:first-child{white-space:nowrap}.num{text-align:right;white-space:nowrap;font-family:ui-monospace,Consolas,monospace}
@@ -774,6 +849,7 @@ def render_report(
 <div class="grid two"><section class="card"><h3>The math</h3>{_receipt(f)}</section>
 <section class="card compass-wrap"><h3>Wind vs. swell vs. beach</h3>{_compass_svg(f)}{legend}</section></div>
 <section class="card"><h3>Tide</h3>{tide_svg}<p class="sub">{_e(tide_note)}</p></section>
+{_shark_card(f)}
 <div class="grid two">{_claude_card(f)}{_alexa_card(f)}</div>
 <section class="card"><h3>Hour by hour</h3><div class="table-wrap">{_hourly_table(f)}</div></section>
 {_footer(f)}

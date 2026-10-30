@@ -7,7 +7,7 @@ import pytest
 from conftest import FIXTURES
 from test_pipeline import StubClient
 
-from surf_agent.decide import decide, spoken_message_ok
+from surf_agent.decide import decide, shark_wording_ok, spoken_message_ok
 from surf_agent.models import Assessment
 from surf_agent.pipeline import RunOptions, run_once
 from surf_agent.scoring import score_snapshot
@@ -75,12 +75,61 @@ def test_shark_veto_beats_perfect_waves_and_positive_adjustment(settings, spot, 
     assert (res.run_dir / "raw" / "sharks.json").exists()
 
 
-def test_report_headline_for_shark_veto(settings, spot, cfg, tmp_path):
+def _shark_card(page: str) -> str:
+    start = page.index("<h3>Sharks</h3>")
+    return page[start : page.index("</section>", start)]
+
+
+def test_report_for_shark_veto(settings, spot, cfg, tmp_path):
     raw = go_day_with(tmp_path, feed(WHITE_NEAR_PIER))
     res = run_once(settings, spot, cfg, RunOptions(replay=raw, use_llm=False), data_dir=tmp_path)
     assert res.decision.decision == "NO_GO" and res.decision.final_score == 0
     page = res.report.read_text(encoding="utf-8")
     assert "A tagged shark surfaced near the pier." in page
+    assert 'class="fin"' in page and "and a shark fin</title>" in page
+    card = _shark_card(page)
+    assert '<p class="big">1</p>' in card and "tagged shark within 10 mi in the last 24 h" in card
+    assert "<td>Pierside</td><td>White Shark</td><td>Adult</td>" in card
+    assert "<td class='num'>1.00</td><td>Yes</td>" in card
+    assert "<b>Veto:</b> Pierside (White Shark)" in card
+    assert "OCEARCH feed: 1 tagged sharks; 1 pinged anywhere in the last 24 h" in card
+
+
+def test_report_for_sub_threshold_and_empty(settings, spot, cfg, tmp_path):
+    blue = json.loads(json.dumps(WHITE_NEAR_PIER))
+    blue["properties"].update(species="Blue Shark (Prionace glauca)", stage_of_life="Juvenile", name="Azure")
+    blue["geometry"]["coordinates"] = [-80.0557, 26.8933 + 8 / 69.093]
+    res = run_once(settings, spot, cfg, RunOptions(replay=go_day_with(tmp_path / "a", feed(blue)), use_llm=False),
+                   data_dir=tmp_path / "a")
+    page = res.report.read_text(encoding="utf-8")
+    assert 'class="fin"' not in page
+    assert "<td>Azure</td><td>Blue Shark</td><td>Juvenile</td>" in _shark_card(page) and "<td>No</td>" in page
+
+    res = run_once(settings, spot, cfg, RunOptions(replay=go_day_with(tmp_path / "b", feed()), use_llm=False),
+                   data_dir=tmp_path / "b")
+    card = _shark_card(res.report.read_text(encoding="utf-8"))
+    assert '<p class="big">0</p>' in card and "<table" not in card
+    assert "doesn&#x27;t mean the water is empty" in card
+    assert shark_wording_ok(card)  # never reads as a safety signal
+
+
+@pytest.mark.parametrize(
+    "feed_body,expected",
+    [(None, "not checked"), ("<html>down</html>", "shark tracker unavailable")],
+)
+def test_report_when_not_checked(settings, spot, cfg, tmp_path, feed_body, expected):
+    res = run_once(settings, spot, cfg, RunOptions(replay=go_day_with(tmp_path, feed_body), use_llm=False),
+                   data_dir=tmp_path)
+    assert expected in _shark_card(res.report.read_text(encoding="utf-8"))
+
+
+def test_report_escapes_feed_text(settings, spot, cfg, tmp_path):
+    evil = json.loads(json.dumps(WHITE_NEAR_PIER))
+    evil["properties"]["name"] = "<script>alert(1)</script>"
+    res = run_once(settings, spot, cfg, RunOptions(replay=go_day_with(tmp_path, feed(evil)), use_llm=False),
+                   data_dir=tmp_path)
+    page = res.report.read_text(encoding="utf-8")
+    assert "<script>" not in page and "&lt;script&gt;alert(1)&lt;/script&gt;" in page
 
 
 def test_shark_below_threshold_does_not_block(settings, spot, cfg, tmp_path):
