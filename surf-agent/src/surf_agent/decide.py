@@ -76,8 +76,10 @@ def decide(
     final = max(0.0, min(10.0, score.base_score + adj))
     reasons: list[str] = []
     if score.vetoes:
+        # A vetoed morning scores 0: "score 10, but no go" is confusing to hear (SPEC §6.6 shows no score).
         decision = "NO_GO"
-        reasons += [f"veto: {v.code} ({v.detail})" for v in score.vetoes]
+        final = 0.0
+        reasons += [f"veto: {v.code} ({v.detail}); base score {score.base_score:.2f} not used" for v in score.vetoes]
         if assessment is not None and adj > 0:
             notes.append("positive adjustment ignored: veto in force")
     else:

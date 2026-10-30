@@ -147,8 +147,11 @@ def eval_cmd(
     effort: str = typer.Option(None, "--effort"),
     no_llm: bool = typer.Option(False, "--no-llm", help="Deterministic only (free)."),
     batch: bool = typer.Option(False, "--batch", help="Use the Message Batches API (50% cost)."),
-    only: str = typer.Option(None, "--only", help="Run scenarios whose id contains this text."),
+    only: str = typer.Option(None, "--only", help="Comma-separated id substrings to run."),
     yes: bool = typer.Option(False, "--yes", help="Skip the cost confirmation."),
+    judge: bool = typer.Option(False, "--judge", help="Also grade explanations with the LLM judge."),
+    judge_model: str = typer.Option("claude-opus-5-5", "--judge-model"),
+    judge_effort: str = typer.Option("medium", "--judge-effort"),
 ):
     """Run the eval suite (ARCHITECTURE §9)."""
 
@@ -158,7 +161,8 @@ def eval_cmd(
 
     settings, spot, scoring = _load(None)
     code = run_suite(settings, spot, scoring, models=model or [settings.llm.model], effort=effort,
-                     use_llm=not no_llm, batch=batch, only=only, assume_yes=yes)
+                     use_llm=not no_llm, batch=batch, only=only, assume_yes=yes,
+                     use_judge=judge, judge_model=judge_model, judge_effort=judge_effort)
     raise typer.Exit(code)
 
 

@@ -79,3 +79,10 @@ def test_maybe_does_not_wake_by_default(spot, prefs, cfg):
     d = decide(_score(spot, prefs, cfg, conditions=MAYBE), None, prefs, spot)
     assert d.decision == "MAYBE" and not should_wake(d, prefs)
     assert should_wake(d, prefs.model_copy(update={"wake_on_maybe": True}))
+
+
+def test_vetoed_final_score_is_zero(spot, prefs, cfg):
+    s = _score(spot, prefs, cfg, conditions={**GOOD, "thunder_pct": 40})
+    d = decide(s, None, prefs, spot)
+    assert s.base_score > 8 and d.final_score == 0 and d.base_score == s.base_score
+    assert d.spoken_message.endswith("Score 0.")
