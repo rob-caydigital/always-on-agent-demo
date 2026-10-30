@@ -1,0 +1,22 @@
+id: shark-passed-pier-12h-ago-now-40mi
+description: "Good waves; an adult white shark's track passed 2 mi from the pier 12 h ago and its latest position is now ~40 mi north. Only the qualifying track ping is in the snapshot (threat 1.0 x 1.0 x 0.85 x 1.0 = 0.85)."
+tags: [veto, safety, shark, track]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "White Shark (Carcharodon carcharias)", stage: "Adult", distance_mi: 2, age_h: 12, name: Passerby}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [shark]
+  rationale: "The full track is checked, not only the latest position: a white shark at the pier 12 hours ago vetoes even though it has moved on."

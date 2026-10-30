@@ -1,0 +1,239 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -67.5134,
+     42.4307
+    ]
+   },
+   "properties": {
+    "id": 2344847,
+    "last_update": "2026-10-30T19:30:23.499039Z",
+    "name": "Contender",
+    "slug": "contender",
+    "category": 8494,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Sharks"
+    },
+    "custom_marker": null,
+    "length": "13 ft. 9 in.",
+    "weight": "1653 lbs.",
+    "tag_location": "Offshore of FL/GA border",
+    "last_move_datetime": "2026-10-30T17:44:19.809000Z",
+    "stage_of_life": "Adult",
+    "species": "White Shark (Carcharodon carcharias)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/2344847/czugok-1-17-2025-ongoing-field-research-whiteshark-contender-color-adjusted.png",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/2344847/czugok-1-17-2025-ongoing-field-research-whiteshark-contender-color-adjusted.png",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Male",
+    "zping": false,
+    "zping_datetime": "2026-10-30T05:49:25.399000+00:00"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -79.78037,
+     32.20996
+    ]
+   },
+   "properties": {
+    "id": 288211,
+    "last_update": "2025-08-29T20:33:29.142129Z",
+    "name": "Grey Lady",
+    "slug": "grey-lady",
+    "category": 8494,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Sharks"
+    },
+    "custom_marker": null,
+    "length": "12 ft 5 in.",
+    "weight": "1,142 lbs",
+    "tag_location": "Nantucket, MA",
+    "last_move_datetime": "2018-12-30T10:28:52Z",
+    "stage_of_life": "Sub-Adult",
+    "species": "White Shark (Carcharodon carcharias)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/288211/ps5lpd_vhmw8r_img_1934_wm_6thfzs7.jpg",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/288211/ps5lpd_vhmw8r_img_1934_wm_6thfzs7.jpg",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Female",
+    "zping": true,
+    "zping_datetime": "2019-03-11T23:02:51+00:00"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -90.282103941,
+     -0.406633385
+    ]
+   },
+   "properties": {
+    "id": 288257,
+    "last_update": "2025-08-29T20:33:14.629556Z",
+    "name": "Susan",
+    "slug": "susan",
+    "category": 8494,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Sharks"
+    },
+    "custom_marker": null,
+    "length": null,
+    "weight": null,
+    "tag_location": "Gal\u00e1pagos Islands, Ecuador",
+    "last_move_datetime": "2014-02-07T08:49:21Z",
+    "stage_of_life": "Sub-Adult",
+    "species": "Hammerhead Shark (Sphyrnidae)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/288257/lztr38_7qrwuv_hammerhead_012114_rs_ocearch_galapagos_darwin_0477-copy_ktnuuxt.jpg",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/288257/lztr38_7qrwuv_hammerhead_012114_rs_ocearch_galapagos_darwin_0477-copy_ktnuuxt.jpg",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Female",
+    "zping": false,
+    "zping_datetime": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     148.4178,
+     -19.96494
+    ]
+   },
+   "properties": {
+    "id": 384782,
+    "last_update": "2025-08-29T20:31:44.700626Z",
+    "name": "Belinda",
+    "slug": "belinda",
+    "category": 8494,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Sharks"
+    },
+    "custom_marker": null,
+    "length": "12 ft 2 in.",
+    "weight": "851 lbs",
+    "tag_location": "Whitsunday Islands, Australia",
+    "last_move_datetime": null,
+    "stage_of_life": "Adult",
+    "species": "Tiger Shark (Galeocerdo cuvier)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/384782/galeocerdo-cuvier_tigershark-tracker-image_DcMwISB.jpg",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/384782/galeocerdo-cuvier_tigershark-tracker-image_DcMwISB.jpg",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Female",
+    "zping": false,
+    "zping_datetime": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -79.84442,
+     26.88904
+    ]
+   },
+   "properties": {
+    "id": 288321,
+    "last_update": "2025-08-29T20:34:46.759531Z",
+    "name": "Lori Anne",
+    "slug": "lori-anne",
+    "category": 8494,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Sharks"
+    },
+    "custom_marker": null,
+    "length": "7 ft 8 in.",
+    "weight": "284 lb",
+    "tag_location": "Boca Grande",
+    "last_move_datetime": "2013-07-30T16:31:33Z",
+    "stage_of_life": "Adult",
+    "species": "Bull Shark (Carcharhinus leucas)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/288321/xcfptl_fo0h5h_bocabarge_with_shark_lori_anne_hhMNnaH.jpg",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/288321/xcfptl_fo0h5h_bocabarge_with_shark_lori_anne_hhMNnaH.jpg",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Female",
+    "zping": true,
+    "zping_datetime": "2014-03-07T06:31:30+00:00"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -89.42227,
+     12.8078
+    ]
+   },
+   "properties": {
+    "id": 288236,
+    "last_update": "2025-08-29T20:33:40.683178Z",
+    "name": "Lady Kemma",
+    "slug": "lady-kemma",
+    "category": 8496,
+    "is_published": true,
+    "flags": [],
+    "rating": null,
+    "voting": null,
+    "category_name": {
+     "en": "Turtles"
+    },
+    "custom_marker": null,
+    "length": "2 ft 6 in.",
+    "weight": "71.6 lb",
+    "tag_location": "Puntarenas, Costa Rica",
+    "last_move_datetime": "2017-10-29T01:44:24Z",
+    "stage_of_life": "Adult",
+    "species": "Olive Ridley Turtle (Lepidochelys olivacea)",
+    "image": "https://media.mapotic.com/i/metadata=none,width=400,height=266,fit=crop/https://media.mapotic.com/media/image/geo/3413/288236/gbtp2f_zruvil_lady-kemma_small_0pzkfw5.jpg",
+    "image_data": {
+     "path": "https://media.mapotic.com/media/image/geo/3413/288236/gbtp2f_zruvil_lady-kemma_small_0pzkfw5.jpg",
+     "domain": "ce838d3ec.cloudimg.io"
+    },
+    "gender": "Female",
+    "zping": false,
+    "zping_datetime": ""
+   }
+  }
+ ]
+}

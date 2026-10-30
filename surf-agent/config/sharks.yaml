@@ -1,0 +1,37 @@
+# Shark threat veto (docs/SPEC-shark-threat.md). Factor buckets are UPPER-inclusive:
+# a value equal to `max_*` falls in that bucket, so closer and newer always win a tie.
+sharks:
+  enabled: true
+  radius_mi: 10                # statute miles, great-circle from the spot
+  lookback_hours: 24
+  veto_threshold: 0.2          # 0.0 = any tagged shark inside the radius vetoes
+  on_missing_data: ignore      # ignore | sleep  (feed down: still decide on the other sources)
+  max_track_requests: 25
+  cache_minutes: 30            # courtesy: Mapotic sends no Cache-Control
+  stale_after_hours: 2
+  species_weights:             # keyed by scientific name; common names are aliases
+    Carcharodon carcharias:   {weight: 1.0,  aliases: [White Shark, Great White]}
+    Galeocerdo cuvier:        {weight: 1.0,  aliases: [Tiger Shark]}
+    Carcharhinus leucas:      {weight: 1.0,  aliases: [Bull Shark]}
+    Isurus oxyrinchus:        {weight: 0.5,  aliases: [Shortfin Mako Shark]}
+    Carcharhinus longimanus:  {weight: 0.5,  aliases: [Oceanic Whitetip]}
+    Sphyrna mokarran:         {weight: 0.5,  aliases: [Great Hammerhead]}
+    Sphyrna lewini:           {weight: 0.5,  aliases: [Scalloped Hammerhead]}
+    Sphyrnidae:               {weight: 0.5,  aliases: [Hammerhead Shark]}
+    Carcharhinus limbatus:    {weight: 0.5,  aliases: [Blacktip Shark]}
+    Prionace glauca:          {weight: 0.25, aliases: [Blue Shark]}
+    Carcharhinus falciformis: {weight: 0.25, aliases: [Silky Shark]}
+    Carcharhinus obscurus:    {weight: 0.25, aliases: [Dusky Shark]}
+    Triaenodon obesus:        {weight: 0.25, aliases: [Whitetip Reef Shark]}
+    Rhincodon typus:          {weight: 0.0,  aliases: [Whale Shark]}
+    Cetorhinus maximus:       {weight: 0.0,  aliases: [Basking Shark]}
+  unknown_species_weight: 0.5
+  stage_factors: {Adult: 1.0, Sub-Adult: 0.8, Juvenile: 0.6, Young of the Year: 0.4}
+  recency_factors:
+    - {max_hours: 6,  factor: 1.0}
+    - {max_hours: 12, factor: 0.85}
+    - {max_hours: 24, factor: 0.7}
+  distance_factors:
+    - {max_mi: 3,  factor: 1.0}
+    - {max_mi: 6,  factor: 0.8}
+    - {max_mi: 10, factor: 0.6}

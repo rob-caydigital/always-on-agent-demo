@@ -1,0 +1,22 @@
+id: shark-white-2mi-today-perfect-waves
+description: "Perfect 4 ft @ 11 s E groundswell, light offshore wind, but an adult white shark pinged 2 mi from the pier 4 h ago (threat 1.00)."
+tags: [veto, safety, shark, perfect-waves]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 10
+    thunder_pct: 0
+    weather_text: sunny
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "White Shark (Carcharodon carcharias)", stage: "Adult", distance_mi: 2, age_h: 4, name: Contender}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [shark]
+  rationale: "An adult white shark inside 3 miles within 6 hours rates 1.00, far above the 0.2 threshold, so the shark veto blocks the wake no matter how good the surf is."

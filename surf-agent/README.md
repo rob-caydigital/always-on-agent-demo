@@ -19,6 +19,7 @@ cp .env.example .env    # then fill in what you have
 ```
 
 - **Claude:** works with `ant auth login` or `ANTHROPIC_API_KEY`.
+- **Shark check:** no setup. Each run reads OCEARCH's public tracker (unofficial Mapotic endpoints, cached 30 min) and vetoes the wake-up when a tagged shark rated at or above the threat threshold pinged within 10 miles in the last 24 hours. Tune it in `config/sharks.yaml`; see [docs/SPEC-shark-threat.md](docs/SPEC-shark-threat.md). "No tagged shark reported" is never a safety signal.
 - **Voice Monkey:** optional. Without `VOICEMONKEY_TOKEN`, the wake-up runs in **simulated** mode. It records the exact `/trigger` and `/announce` calls it would send and treats them as sent. The steps for setting up the Alexa routine are in ARCHITECTURE §7.
 
 ## Use

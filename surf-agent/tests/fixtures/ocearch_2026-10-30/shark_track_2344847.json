@@ -1,0 +1,90 @@
+[
+ {
+  "dt_move": "2025-01-17T22:52:00Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -80.61527,
+    30.8702
+   ]
+  },
+  "import_id": "ocearch:230045"
+ },
+ {
+  "dt_move": "2025-01-17T22:52:00Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -80.61527,
+    30.8702
+   ]
+  },
+  "import_id": "ocearch:230060"
+ },
+ {
+  "dt_move": "2026-09-22T17:09:51.749000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -60.00263,
+    48.53379
+   ]
+  },
+  "import_id": "ocearch:274719"
+ },
+ {
+  "dt_move": "2026-09-23T00:48:38.493000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -60.11611,
+    48.31893
+   ]
+  },
+  "import_id": "ocearch:274757"
+ },
+ {
+  "dt_move": "2026-10-06T05:41:53.251000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -62.30087,
+    45.9601
+   ]
+  },
+  "import_id": "ocearch:278922"
+ },
+ {
+  "dt_move": "2026-10-06T07:06:52.907000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -62.30109,
+    45.95987
+   ]
+  },
+  "import_id": "ocearch:278923"
+ },
+ {
+  "dt_move": "2026-10-06T23:38:54.478000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -62.06796,
+    46.31349
+   ]
+  },
+  "import_id": "ocearch:279101"
+ },
+ {
+  "dt_move": "2026-10-30T17:44:19.809000Z",
+  "point": {
+   "type": "Point",
+   "coordinates": [
+    -67.5134,
+    42.4307
+   ]
+  },
+  "import_id": "ocearch:284070"
+ }
+]

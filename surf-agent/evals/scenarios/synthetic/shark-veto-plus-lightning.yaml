@@ -1,0 +1,22 @@
+id: shark-veto-plus-lightning
+description: "Perfect waves with 40% thunder at dawn and an adult white shark 3 mi away 5 h ago."
+tags: [veto, safety, shark, lightning]
+input:
+  conditions:
+    wave_height_ft: 4
+    wave_period_s: 11
+    swell_dir_deg: 90
+    wind_kt: 5
+    wind_dir_deg: 260
+    gust_kt: 8
+    pop_pct: 40
+    thunder_pct: 40
+    weather_text: chance thunderstorms
+  marine_text: "W winds 5 to 10 kt. Seas 3 to 4 ft. Wave Detail: E 4 ft at 11 seconds."
+  sharks:
+    - {species: "White Shark (Carcharodon carcharias)", stage: "Adult", distance_mi: 3, age_h: 5, name: Storm}
+expect:
+  decision: NO_GO
+  allowed_decisions: [NO_GO]
+  vetoes: [lightning, shark]
+  rationale: "Both hard vetoes apply and both must be reported."
